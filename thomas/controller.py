@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from .async_output import AsyncOutput
 from .input import Input
-from .berth import Berth
+from .berth import Berth, PriorityBerth
 from .websocket_client import WebsocketClient
 
 
@@ -11,7 +11,7 @@ class FatController(object):
 
     DISPLAY_BERTHS = OrderedDict((
         (0, Berth('0659')),
-        (1, Berth('0660')),  # + '0665'
+        (1, PriorityBerth('0660', alt='0665')),
         (11, Berth('0669')),
         (4, Berth('0661')),
         (3, Berth('0667')),
