@@ -1,0 +1,46 @@
+# Python
+*.py[cod]
+*egg-info
+
+# Enviroment Stuff
+venv
+.env
+.env_*
+
+# Installer logs
+pip-log.txt
+
+# Webassets
+.webassets-cache
+
+# Circus Data
+/data
+
+
+# OS Crap
+.DS_Store
+
+# Testing
+.autonose-depends.pickle
+nosetests.xml
+.coverage
+.tox
+
+# IDE Project stuffs
+.emacs.desktop.*
+.project
+.pydevproject
+nbproject/*
+
+# Configuration files
+.noseids
+
+#Sphinx docs
+docs/build/*
+apidocs/*
+
+
+*.log
+
+*.sublime-workspace
+

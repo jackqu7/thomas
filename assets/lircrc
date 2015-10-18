@@ -1,0 +1,13 @@
+begin
+  button = KEY_VOLUMEUP
+  prog = nr_view
+  config = b_up
+  repeat = 1
+end
+
+begin
+  button = KEY_VOLUMEDOWN
+  prog = nr_view
+  config = b_down
+  repeat = 1
+end
