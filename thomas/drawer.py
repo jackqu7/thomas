@@ -13,21 +13,14 @@ class Drawer(object):
 
     text_color = (0, 204, 255)
 
-    def __init__(self):
+    def __init__(self, train):
         self.im = Image.new('RGB', (self.WIDTH, self.HEIGHT))
+        self.train = train
+
+    def draw(self):
+        return self.blank()
 
     def blank(self):
-        return self.im
-
-    def headcode(self, headcode):
-        draw = ImageDraw.Draw(self.im)
-
-        self.draw_text(
-            draw,
-            (self.WIDTH / 2 + 4, self.HEIGHT / 2),
-            headcode,
-            self.large_font)
-
         return self.im
 
     def draw_text(self, draw, coords, text, font, center=True):
@@ -41,3 +34,22 @@ class Drawer(object):
             y = y - h / 2
 
         draw.text((x, y), text, font=font, fill=self.text_color)
+
+
+class HeadcodeDrawer(Drawer):
+    def draw(self):
+        if self.train:
+            return self.headcode(self.train['headcode'])
+        else:
+            return self.blank()
+
+    def headcode(self, headcode):
+        draw = ImageDraw.Draw(self.im)
+
+        self.draw_text(
+            draw,
+            (self.WIDTH / 2 + 4, self.HEIGHT / 2),
+            headcode,
+            self.large_font)
+
+        return self.im

@@ -1,10 +1,7 @@
-from .drawer import Drawer
-
-
 class Berth(object):
     def __init__(self, berth_id):
         self.berth_id = berth_id
-        self.train = None
+        self.current_train = None
 
     def _is_different(self, train1, train2):
         if train1 and train2:
@@ -14,22 +11,19 @@ class Berth(object):
 
     def set(self, berth_id, train):
         if berth_id == self.berth_id:
-            if self._is_different(train, self.train):
-                self.train = train
-                return self.draw(train)
+            if self._is_different(train, self.current_train):
+                self.current_train = train
+                return True
 
-    def draw(self, train):
-        if train:
-            return Drawer().headcode(train['headcode'])
-        else:
-            return Drawer().blank()
+    def get_current_train(self):
+        return self.current_train
 
 
 class PriorityBerth(Berth):
     def __init__(self, berth_id, alt=None):
         self.alt_berth_id = alt
+        self.train = None
         self.alt_train = None
-        self.current_train = None
         super(PriorityBerth, self).__init__(berth_id)
 
     def set(self, berth_id, train):
@@ -41,4 +35,4 @@ class PriorityBerth(Berth):
         current_train = self.train or self.alt_train
         if self._is_different(current_train, self.current_train):
             self.current_train = current_train
-            return self.draw(current_train)
+            return True

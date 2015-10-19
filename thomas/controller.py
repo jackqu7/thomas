@@ -5,6 +5,7 @@ from .async_output import AsyncOutput
 from .input import Input
 from .berth import Berth, PriorityBerth
 from .websocket_client import WebsocketClient
+from .drawer import HeadcodeDrawer
 
 
 class FatController(object):
@@ -65,10 +66,12 @@ class FatController(object):
         for berth_id, train in self.status.items():
 
             # Tell all berths about this update, if they care about it they'll
-            # return an image for us to draw
+            # return True and we'll then draw their new current_train
             for display_number, berth in self.DISPLAY_BERTHS.items():
-                im = berth.set(berth_id, train)
-                if im:
+                changed = berth.set(berth_id, train)
+                if changed:
+                    train_to_draw = berth.get_current_train()
+                    im = HeadcodeDrawer(train_to_draw).draw()
                     self.output.queue_display_update(im, display_number)
 
         yield from self.output.flush_display_queue()
