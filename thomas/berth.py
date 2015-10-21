@@ -18,6 +18,9 @@ class Berth(object):
     def get_current_train(self):
         return self.current_train
 
+    def tick(self):
+        pass
+
 
 class PriorityBerth(Berth):
     def __init__(self, berth_id, alt=None):
@@ -56,18 +59,29 @@ class FringeBerth(Berth):
         # If there's not, let choose_current_train decide what to do
         return self.choose_current_train()
 
+    def _is_different(self, train1, train2):
+        if train1 and train2:
+            return train1['headcode'] != train2['headcode'] or \
+                train1.get('is_fringe') != train2.get('is_fringe')
+        else:
+            return train1 and not train2 or not train1 and train2
+
     def choose_current_train(self):
         # If there's a train in the main berth, always show it
         if self.train:
             current_train = self.train
+            current_train['is_fringe'] = False
         else:
             # Otherwise show the active fringe train
             active_trains = list(self._active_fringe_trains())
 
             if len(active_trains) == 0:
                 current_train = None
-
-            current_train = active_trains[self.counter]
+            else:
+                if self.counter > len(active_trains) - 1:
+                    self.counter = 0
+                current_train = active_trains[self.counter]
+                current_train['is_fringe'] = True
 
         if self._is_different(current_train, self.current_train):
             self.current_train = current_train
@@ -80,13 +94,8 @@ class FringeBerth(Berth):
                 yield fringe_train
 
     def tick(self):
-        active_trains = list(self._active_fringe_trains())
-
         res = self.choose_current_train()
 
-        if not self.train:
-            self.counter += 1
-            if self.counter > len(active_trains) - 1:
-                self.counter = 0
+        self.counter += 1
 
         return res

@@ -195,7 +195,8 @@ class FringeBerthTests(unittest.TestCase):
         berth.set('F1', train_b)
         berth.tick()
         assert berth.get_current_train() == train_a
-        assert berth.counter == 0
+        assert not berth.get_current_train()['is_fringe']
+        assert berth.counter == 1
 
         # No train in the main berth -> tick through fringe berths
         berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
@@ -204,14 +205,17 @@ class FringeBerthTests(unittest.TestCase):
 
         berth.tick()
         assert berth.get_current_train() == train_a
+        assert berth.get_current_train()['is_fringe']
         assert berth.counter == 1
 
         berth.tick()
         assert berth.get_current_train() == train_b
-        assert berth.counter == 0
+        assert berth.get_current_train()['is_fringe']
+        assert berth.counter == 2
 
         berth.tick()
         assert berth.get_current_train() == train_a
+        assert berth.get_current_train()['is_fringe']
         assert berth.counter == 1
 
         # Add a new train to F2 -> show it on next tick and show F3 train later
@@ -219,12 +223,41 @@ class FringeBerthTests(unittest.TestCase):
 
         berth.tick()
         assert berth.get_current_train() == train_c
+        assert berth.get_current_train()['is_fringe']
         assert berth.counter == 2
 
         berth.tick()
         assert berth.get_current_train() == train_b
-        assert berth.counter == 0
+        assert berth.get_current_train()['is_fringe']
+        assert berth.counter == 3
 
         berth.tick()
         assert berth.get_current_train() == train_a
+        assert berth.get_current_train()['is_fringe']
         assert berth.counter == 1
+
+    def test_is_different(self):
+        berth = FringeBerth('abc')
+
+        moorgate1 = {
+            'headcode': '2F29'
+        }
+        moorgate2 = {
+            'headcode': '2F29'
+        }
+
+        kings_cross1 = {
+            'headcode': '1P29',
+            'is_fringe': False
+        }
+        kings_cross2 = {
+            'headcode': '1P29',
+            'is_fringe': True,
+        }
+
+        assert berth._is_different(moorgate1, kings_cross1)
+        assert berth._is_different(kings_cross1, moorgate1)
+        assert berth._is_different(moorgate1, None)
+        assert berth._is_different(None, moorgate1)
+        assert not berth._is_different(moorgate1, moorgate2)
+        assert berth._is_different(kings_cross2, kings_cross1)
