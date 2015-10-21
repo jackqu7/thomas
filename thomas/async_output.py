@@ -13,6 +13,9 @@ class AsyncOutput(Output):
         self.lock = asyncio.Lock()
 
     def flush_display_queue(self):
+        if len(self.display_queue) == 0:
+            return
+
         yield from self.lock.acquire()
 
         start_time = time.time()
