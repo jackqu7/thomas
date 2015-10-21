@@ -14,12 +14,15 @@ class FatController(object):
         (0, Berth('0659')),
         (1, PriorityBerth('0660', alt='0665')),
         (11, Berth('0669')),
-        (4, Berth('0661')),
+
+        (2, Berth('0661')),
         (3, Berth('0667')),
-        (2, Berth('0671')),
-        (7, Berth('0656')),
+        (4, Berth('0671')),
+
+        (5, Berth('0656')),
         (6, Berth('0662')),
-        (5, Berth('0666')),
+        (7, Berth('0666')),
+
         (10, Berth('0658')),
         (9, Berth('0664')),
         (8, Berth('0668')),
