@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from .async_output import AsyncOutput
 from .input import Input
-from .berth import Berth, PriorityBerth
+from .berth import Berth, PriorityBerth, FringeBerth
 from .websocket_client import WebsocketClient
 from .drawer import HeadcodeDrawer
 
@@ -11,22 +11,24 @@ from .drawer import HeadcodeDrawer
 class FatController(object):
 
     DISPLAY_BERTHS = OrderedDict((
-        (0, Berth('0659')),
+        (11, FringeBerth('0659', '0651', '0637', '0633', '0629', '0627', '0625', '0623')),
         (1, PriorityBerth('0660', alt='0665')),
-        (11, Berth('0669')),
+        (0, Berth('0669')),
 
-        (2, Berth('0661')),
+        (2, FringeBerth('0661', '0653', '0639', '0635', '0629', '0627', '0625', '0623')),
         (3, Berth('0667')),
         (4, Berth('0671')),
 
         (5, Berth('0656')),
         (6, Berth('0662')),
-        (7, Berth('0666')),
+        (7, FringeBerth('0666', '0672', '0676', '0684', '0688', '0696', '0708', '0712')),
 
         (10, Berth('0658')),
         (9, Berth('0664')),
-        (8, Berth('0668')),
+        (8, FringeBerth('0668', '0668', '0674', '0678', '0686', '0690', '0698', '0701', '0944', '0946')),
     ))
+
+    TICK_RATE = 5
 
     def __init__(self, loop):
         self.loop = loop
@@ -46,14 +48,23 @@ class FatController(object):
     @asyncio.coroutine
     def tick(self):
         while True:
-            print('tick')
-            yield from asyncio.sleep(1)
+            for display_number, berth in self.DISPLAY_BERTHS.items():
+                changed = berth.tick()
+                if changed:
+                    train_to_draw = berth.get_current_train()
+                    drawer = HeadcodeDrawer(train_to_draw)
+                    im = drawer.draw()
+                    print('drawing from tick', train_to_draw)
+                    self.output.queue_display_update(im, display_number)
+
+            yield from self.output.flush_display_queue()
+
+            yield from asyncio.sleep(self.TICK_RATE)
 
     @asyncio.coroutine
     def ws_queue_handler(self):
         while True:
             message = yield from self.ws_queue.get()
-            print(message)
             self.status.update(message)
             yield from self.update()
 
@@ -75,6 +86,7 @@ class FatController(object):
                 if changed:
                     train_to_draw = berth.get_current_train()
                     im = HeadcodeDrawer(train_to_draw).draw()
+                    print('drawing from update', train_to_draw)
                     self.output.queue_display_update(im, display_number)
 
         yield from self.output.flush_display_queue()
