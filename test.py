@@ -213,3 +213,18 @@ class FringeBerthTests(unittest.TestCase):
         berth.tick()
         assert berth.get_current_train() == train_a
         assert berth.counter == 1
+
+        # Add a new train to F2 -> show it on next tick and show F3 train later
+        berth.set('F2', train_c)
+
+        berth.tick()
+        assert berth.get_current_train() == train_c
+        assert berth.counter == 2
+
+        berth.tick()
+        assert berth.get_current_train() == train_b
+        assert berth.counter == 0
+
+        berth.tick()
+        assert berth.get_current_train() == train_a
+        assert berth.counter == 1
