@@ -1,5 +1,5 @@
 import unittest
-from thomas.berth import Berth, PriorityBerth
+from thomas.berth import Berth, PriorityBerth, FringeBerth
 
 
 class BerthTests(unittest.TestCase):
@@ -101,3 +101,115 @@ class PriorityBerthTests(unittest.TestCase):
         # Should not update if alt berth set whilst priority berth populated
         assert berth.set('efg', kings_cross1) is None
         assert berth.get_current_train() == moorgate1
+
+
+class FringeBerthTests(unittest.TestCase):
+    def test_set(self):
+        train_a = {
+            'headcode': 'AAAA'
+        }
+        train_b = {
+            'headcode': 'BBBB'
+        }
+        train_c = {
+            'headcode': 'CCCC'
+        }
+
+        # MAIN  F1  F2  F3
+        # NEW   -   -   -   = NEW
+        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        assert berth.set('MAIN', train_a) is True
+        assert berth.get_current_train() == train_a
+
+        # MAIN  F1  F2  F3
+        # -     -   -   NEW = NEW
+        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        assert berth.set('F3', train_a) is True
+        assert berth.get_current_train() == train_a
+        assert berth.fringe_trains == {'F3': train_a}
+
+        # MAIN  F1  F2  F3
+        # A     -   NEW -   = A
+        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth.set('MAIN', train_a)
+        assert berth.set('F2', train_b) is None
+        assert berth.get_current_train() == train_a
+        assert berth.fringe_trains == {'F2': train_b}
+
+        # MAIN  F1  F2  F3
+        # NEW   -   A   -   = NEW
+        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth.set('F2', train_a)
+        assert berth.set('MAIN', train_b) is True
+        assert berth.get_current_train() == train_b
+
+        # MAIN  F1  F2  F3
+        # -     NEW -   A   = NEW
+        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth.set('F3', train_a)
+        assert berth.set('F1', train_b) is True
+        assert berth.get_current_train() == train_b
+        assert berth.fringe_trains == {'F1': train_b, 'F3': train_a}
+
+        # MAIN  F1  F2  F3
+        # B     NEW  -   A   = B
+        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth.set('F3', train_a)
+        berth.set('MAIN', train_b)
+        assert berth.set('F1', train_c) is None
+        assert berth.get_current_train() == train_b
+        assert berth.fringe_trains == {'F1': train_c, 'F3': train_a}
+
+        # MAIN  F1   F2  F3
+        # -     NONE -   B   = B
+        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth.set('F3', train_b)
+        berth.set('F1', train_a)
+        assert berth.set('F1', None) is True
+        assert berth.get_current_train() == train_b
+        assert berth.fringe_trains == {'F1': None, 'F3': train_b}
+
+        # MAIN  F1   F2  F3
+        # NONE  A    -   B   = A
+        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth.set('F3', train_b)
+        berth.set('F1', train_a)
+        berth.set('MAIN', train_c)
+        assert berth.set('MAIN', None) is True
+        assert berth.get_current_train() == train_a
+
+    def test_tick(self):
+        train_a = {
+            'headcode': 'AAAA'
+        }
+        train_b = {
+            'headcode': 'BBBB'
+        }
+        train_c = {
+            'headcode': 'CCCC'
+        }
+
+        # Train in the main berth -> do nothing on tick
+        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth.set('MAIN', train_a)
+        berth.set('F1', train_b)
+        berth.tick()
+        assert berth.get_current_train() == train_a
+        assert berth.counter == 0
+
+        # No train in the main berth -> tick through fringe berths
+        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth.set('F1', train_a)
+        berth.set('F3', train_b)
+
+        berth.tick()
+        assert berth.get_current_train() == train_a
+        assert berth.counter == 1
+
+        berth.tick()
+        assert berth.get_current_train() == train_b
+        assert berth.counter == 0
+
+        berth.tick()
+        assert berth.get_current_train() == train_a
+        assert berth.counter == 1
