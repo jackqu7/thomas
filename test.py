@@ -2,10 +2,17 @@ import unittest
 from thomas.berth import Berth, PriorityBerth, FringeBerth
 
 
+def _berth_json(**params):
+    params.setdefault('id', 'abc')
+    params.setdefault('name', 'name')
+    params.setdefault('distance', 0)
+    return params
+
+
 class BerthTests(unittest.TestCase):
 
     def test_is_different(self):
-        berth = Berth('abc')
+        berth = Berth(_berth_json())
 
         moorgate1 = {
             'headcode': '2F29'
@@ -29,7 +36,7 @@ class BerthTests(unittest.TestCase):
         assert not berth._is_different(kings_cross2, kings_cross1)
 
     def test_set(self):
-        berth = Berth('abc')
+        berth = Berth(_berth_json(id='abc'))
 
         moorgate1 = {
             'headcode': '2F29'
@@ -61,7 +68,7 @@ class BerthTests(unittest.TestCase):
 
 class PriorityBerthTests(unittest.TestCase):
     def test_set(self):
-        berth = PriorityBerth('abc', alt='efg')
+        berth = PriorityBerth(_berth_json(id='abc'), alt=_berth_json(id='efg'))
 
         moorgate1 = {
             'headcode': '2F29'
@@ -117,20 +124,32 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1  F2  F3
         # NEW   -   -   -   = NEW
-        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth = FringeBerth(
+            _berth_json(id='MAIN'),
+            _berth_json(id='F1'),
+            _berth_json(id='F2'),
+            _berth_json(id='F3'))
         assert berth.set('MAIN', train_a) is True
         assert berth.get_current_train() == dict(train_a, is_fringe=False)
 
         # MAIN  F1  F2  F3
         # -     -   -   NEW = NEW
-        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth = FringeBerth(
+            _berth_json(id='MAIN'),
+            _berth_json(id='F1'),
+            _berth_json(id='F2'),
+            _berth_json(id='F3'))
         assert berth.set('F3', train_a) is True
         assert berth.get_current_train() == dict(train_a, is_fringe=True)
         assert berth.fringe_trains == {'F3': dict(train_a, is_fringe=True)}
 
         # MAIN  F1  F2  F3
         # A     -   NEW -   = A
-        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth = FringeBerth(
+            _berth_json(id='MAIN'),
+            _berth_json(id='F1'),
+            _berth_json(id='F2'),
+            _berth_json(id='F3'))
         berth.set('MAIN', train_a)
         assert berth.set('F2', train_b) is None
         assert berth.get_current_train() == dict(train_a, is_fringe=False)
@@ -138,14 +157,22 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1  F2  F3
         # NEW   -   A   -   = NEW
-        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth = FringeBerth(
+            _berth_json(id='MAIN'),
+            _berth_json(id='F1'),
+            _berth_json(id='F2'),
+            _berth_json(id='F3'))
         berth.set('F2', train_a)
         assert berth.set('MAIN', train_b) is True
         assert berth.get_current_train() == dict(train_b, is_fringe=False)
 
         # MAIN  F1  F2  F3
         # -     NEW -   A   = NEW
-        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth = FringeBerth(
+            _berth_json(id='MAIN'),
+            _berth_json(id='F1'),
+            _berth_json(id='F2'),
+            _berth_json(id='F3'))
         berth.set('F3', train_a)
         assert berth.set('F1', train_b) is True
         assert berth.get_current_train() == dict(train_b, is_fringe=True)
@@ -155,7 +182,11 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1  F2  F3
         # B     NEW  -   A   = B
-        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth = FringeBerth(
+            _berth_json(id='MAIN'),
+            _berth_json(id='F1'),
+            _berth_json(id='F2'),
+            _berth_json(id='F3'))
         berth.set('F3', train_a)
         berth.set('MAIN', train_b)
         assert berth.set('F1', train_c) is None
@@ -166,7 +197,11 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1   F2  F3
         # -     NONE -   B   = B
-        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth = FringeBerth(
+            _berth_json(id='MAIN'),
+            _berth_json(id='F1'),
+            _berth_json(id='F2'),
+            _berth_json(id='F3'))
         berth.set('F3', train_b)
         berth.set('F1', train_a)
         assert berth.set('F1', None) is True
@@ -177,7 +212,11 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1   F2  F3
         # NONE  A    -   B   = A
-        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth = FringeBerth(
+            _berth_json(id='MAIN'),
+            _berth_json(id='F1'),
+            _berth_json(id='F2'),
+            _berth_json(id='F3'))
         berth.set('F3', train_b)
         berth.set('F1', train_a)
         berth.set('MAIN', train_c)
@@ -196,7 +235,11 @@ class FringeBerthTests(unittest.TestCase):
         }
 
         # Train in the main berth -> do nothing on tick
-        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth = FringeBerth(
+            _berth_json(id='MAIN'),
+            _berth_json(id='F1'),
+            _berth_json(id='F2'),
+            _berth_json(id='F3'))
         berth.set('MAIN', train_a)
         berth.set('F1', train_b)
         berth.tick()
@@ -204,7 +247,11 @@ class FringeBerthTests(unittest.TestCase):
         assert berth.counter == 1
 
         # No train in the main berth -> tick through fringe berths
-        berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
+        berth = FringeBerth(
+            _berth_json(id='MAIN'),
+            _berth_json(id='F1'),
+            _berth_json(id='F2'),
+            _berth_json(id='F3'))
         berth.set('F1', train_a)
         berth.set('F3', train_b)
 
@@ -236,7 +283,7 @@ class FringeBerthTests(unittest.TestCase):
         assert berth.counter == 1
 
     def test_is_different(self):
-        berth = FringeBerth('abc')
+        berth = FringeBerth(_berth_json())
 
         moorgate1 = {
             'headcode': '2F29'

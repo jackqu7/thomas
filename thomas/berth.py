@@ -1,6 +1,6 @@
 class Berth(object):
-    def __init__(self, berth_id):
-        self.berth_id = berth_id
+    def __init__(self, berth):
+        self.berth_id = berth['id']
         self.current_train = None
 
     def _is_different(self, train1, train2):
@@ -27,11 +27,11 @@ class Berth(object):
 
 
 class PriorityBerth(Berth):
-    def __init__(self, berth_id, alt=None):
-        self.alt_berth_id = alt
+    def __init__(self, berth, alt=None):
+        self.alt_berth_id = alt['id']
         self.train = None
         self.alt_train = None
-        super(PriorityBerth, self).__init__(berth_id)
+        super(PriorityBerth, self).__init__(berth)
 
     def set(self, berth_id, train):
         if berth_id == self.berth_id:
@@ -46,18 +46,20 @@ class PriorityBerth(Berth):
 
 
 class FringeBerth(Berth):
-    def __init__(self, berth_id, *look_back_ids):
-        self.look_back_ids = look_back_ids
+    def __init__(self, berth, *look_back_berths):
+        self.look_back_berths = {}
+        for b in look_back_berths:
+            self.look_back_berths[b['id']] = b
         self.fringe_trains = {}
         self.train = None
         self.counter = 0
-        super(FringeBerth, self).__init__(berth_id)
+        super(FringeBerth, self).__init__(berth)
 
     def set(self, berth_id, train):
         if berth_id == self.berth_id:
             self.train = self._copy_train(train, is_fringe=False)
 
-        if berth_id in self.look_back_ids:
+        if berth_id in self.look_back_berths:
             self.fringe_trains[berth_id] = \
                 self._copy_train(train, is_fringe=True)
 
@@ -90,7 +92,7 @@ class FringeBerth(Berth):
             return True
 
     def _active_fringe_trains(self):
-        for fringe_id in self.look_back_ids:
+        for fringe_id in self.look_back_berths:
             fringe_train = self.fringe_trains.get(fringe_id)
             if fringe_train:
                 yield fringe_train
