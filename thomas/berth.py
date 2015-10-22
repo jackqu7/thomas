@@ -9,10 +9,14 @@ class Berth(object):
         else:
             return train1 and not train2 or not train1 and train2
 
+    def _copy_train(self, train, **extra):
+        if train:
+            return dict(train, **extra)
+
     def set(self, berth_id, train):
         if berth_id == self.berth_id:
             if self._is_different(train, self.current_train):
-                self.current_train = train
+                self.current_train = self._copy_train(train)
                 return True
 
     def get_current_train(self):
@@ -31,13 +35,13 @@ class PriorityBerth(Berth):
 
     def set(self, berth_id, train):
         if berth_id == self.berth_id:
-            self.train = train
+            self.train = self._copy_train(train)
         if berth_id == self.alt_berth_id:
-            self.alt_train = train
+            self.alt_train = self._copy_train(train)
 
         current_train = self.train or self.alt_train
         if self._is_different(current_train, self.current_train):
-            self.current_train = current_train
+            self.current_train = self._copy_train(current_train)
             return True
 
 
@@ -51,12 +55,12 @@ class FringeBerth(Berth):
 
     def set(self, berth_id, train):
         if berth_id == self.berth_id:
-            self.train = train
+            self.train = self._copy_train(train, is_fringe=False)
 
         if berth_id in self.look_back_ids:
-            self.fringe_trains[berth_id] = train
+            self.fringe_trains[berth_id] = \
+                self._copy_train(train, is_fringe=True)
 
-        # If there's not, let choose_current_train decide what to do
         return self.choose_current_train()
 
     def _is_different(self, train1, train2):
@@ -70,7 +74,6 @@ class FringeBerth(Berth):
         # If there's a train in the main berth, always show it
         if self.train:
             current_train = self.train
-            current_train['is_fringe'] = False
         else:
             # Otherwise show the active fringe train
             active_trains = list(self._active_fringe_trains())
@@ -81,7 +84,6 @@ class FringeBerth(Berth):
                 if self.counter > len(active_trains) - 1:
                     self.counter = 0
                 current_train = active_trains[self.counter]
-                current_train['is_fringe'] = True
 
         if self._is_different(current_train, self.current_train):
             self.current_train = current_train

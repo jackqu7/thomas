@@ -119,37 +119,39 @@ class FringeBerthTests(unittest.TestCase):
         # NEW   -   -   -   = NEW
         berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
         assert berth.set('MAIN', train_a) is True
-        assert berth.get_current_train() == train_a
+        assert berth.get_current_train() == dict(train_a, is_fringe=False)
 
         # MAIN  F1  F2  F3
         # -     -   -   NEW = NEW
         berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
         assert berth.set('F3', train_a) is True
-        assert berth.get_current_train() == train_a
-        assert berth.fringe_trains == {'F3': train_a}
+        assert berth.get_current_train() == dict(train_a, is_fringe=True)
+        assert berth.fringe_trains == {'F3': dict(train_a, is_fringe=True)}
 
         # MAIN  F1  F2  F3
         # A     -   NEW -   = A
         berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
         berth.set('MAIN', train_a)
         assert berth.set('F2', train_b) is None
-        assert berth.get_current_train() == train_a
-        assert berth.fringe_trains == {'F2': train_b}
+        assert berth.get_current_train() == dict(train_a, is_fringe=False)
+        assert berth.fringe_trains == {'F2': dict(train_b, is_fringe=True)}
 
         # MAIN  F1  F2  F3
         # NEW   -   A   -   = NEW
         berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
         berth.set('F2', train_a)
         assert berth.set('MAIN', train_b) is True
-        assert berth.get_current_train() == train_b
+        assert berth.get_current_train() == dict(train_b, is_fringe=False)
 
         # MAIN  F1  F2  F3
         # -     NEW -   A   = NEW
         berth = FringeBerth('MAIN', 'F1', 'F2', 'F3')
         berth.set('F3', train_a)
         assert berth.set('F1', train_b) is True
-        assert berth.get_current_train() == train_b
-        assert berth.fringe_trains == {'F1': train_b, 'F3': train_a}
+        assert berth.get_current_train() == dict(train_b, is_fringe=True)
+        assert berth.fringe_trains == {
+            'F1': dict(train_b, is_fringe=True),
+            'F3': dict(train_a, is_fringe=True)}
 
         # MAIN  F1  F2  F3
         # B     NEW  -   A   = B
@@ -157,8 +159,10 @@ class FringeBerthTests(unittest.TestCase):
         berth.set('F3', train_a)
         berth.set('MAIN', train_b)
         assert berth.set('F1', train_c) is None
-        assert berth.get_current_train() == train_b
-        assert berth.fringe_trains == {'F1': train_c, 'F3': train_a}
+        assert berth.get_current_train() == dict(train_b, is_fringe=False)
+        assert berth.fringe_trains == {
+            'F1': dict(train_c, is_fringe=True),
+            'F3': dict(train_a, is_fringe=True)}
 
         # MAIN  F1   F2  F3
         # -     NONE -   B   = B
@@ -166,8 +170,10 @@ class FringeBerthTests(unittest.TestCase):
         berth.set('F3', train_b)
         berth.set('F1', train_a)
         assert berth.set('F1', None) is True
-        assert berth.get_current_train() == train_b
-        assert berth.fringe_trains == {'F1': None, 'F3': train_b}
+        assert berth.get_current_train() == dict(train_b, is_fringe=True)
+        assert berth.fringe_trains == {
+            'F1': None,
+            'F3': dict(train_b, is_fringe=True)}
 
         # MAIN  F1   F2  F3
         # NONE  A    -   B   = A
@@ -176,7 +182,7 @@ class FringeBerthTests(unittest.TestCase):
         berth.set('F1', train_a)
         berth.set('MAIN', train_c)
         assert berth.set('MAIN', None) is True
-        assert berth.get_current_train() == train_a
+        assert berth.get_current_train() == dict(train_a, is_fringe=True)
 
     def test_tick(self):
         train_a = {
@@ -194,8 +200,7 @@ class FringeBerthTests(unittest.TestCase):
         berth.set('MAIN', train_a)
         berth.set('F1', train_b)
         berth.tick()
-        assert berth.get_current_train() == train_a
-        assert not berth.get_current_train()['is_fringe']
+        assert berth.get_current_train() == dict(train_a, is_fringe=False)
         assert berth.counter == 1
 
         # No train in the main berth -> tick through fringe berths
@@ -204,36 +209,30 @@ class FringeBerthTests(unittest.TestCase):
         berth.set('F3', train_b)
 
         berth.tick()
-        assert berth.get_current_train() == train_a
-        assert berth.get_current_train()['is_fringe']
+        assert berth.get_current_train() == dict(train_a, is_fringe=True)
         assert berth.counter == 1
 
         berth.tick()
-        assert berth.get_current_train() == train_b
-        assert berth.get_current_train()['is_fringe']
+        assert berth.get_current_train() == dict(train_b, is_fringe=True)
         assert berth.counter == 2
 
         berth.tick()
-        assert berth.get_current_train() == train_a
-        assert berth.get_current_train()['is_fringe']
+        assert berth.get_current_train() == dict(train_a, is_fringe=True)
         assert berth.counter == 1
 
         # Add a new train to F2 -> show it on next tick and show F3 train later
         berth.set('F2', train_c)
 
         berth.tick()
-        assert berth.get_current_train() == train_c
-        assert berth.get_current_train()['is_fringe']
+        assert berth.get_current_train() == dict(train_c, is_fringe=True)
         assert berth.counter == 2
 
         berth.tick()
-        assert berth.get_current_train() == train_b
-        assert berth.get_current_train()['is_fringe']
+        assert berth.get_current_train() == dict(train_b, is_fringe=True)
         assert berth.counter == 3
 
         berth.tick()
-        assert berth.get_current_train() == train_a
-        assert berth.get_current_train()['is_fringe']
+        assert berth.get_current_train() == dict(train_a, is_fringe=True)
         assert berth.counter == 1
 
     def test_is_different(self):
