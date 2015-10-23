@@ -51,8 +51,11 @@ class PriorityBerth(Berth):
 class FringeBerth(Berth):
     def __init__(self, berth, *look_back_berths):
         self.look_back_berths = OrderedDict()
+        self.max_berth_distance = 1
         for b in look_back_berths:
             self.look_back_berths[b['id']] = b
+            if b['distance'] > self.max_berth_distance:
+                self.max_berth_distance = b['distance']
         self.fringe_trains = {}
         self.train = None
         self.counter = 0
@@ -63,11 +66,14 @@ class FringeBerth(Berth):
             self.train = self._copy_train(train, is_fringe=False)
 
         if berth_id in self.look_back_berths:
+            berth = self.look_back_berths[berth_id]
+            distance_percent = berth['distance'] / self.max_berth_distance
             self.fringe_trains[berth_id] = \
                 self._copy_train(
                     train,
                     is_fringe=True,
-                    berth=self.look_back_berths[berth_id])
+                    berth=berth,
+                    distance_percent=distance_percent)
 
         return self.choose_current_train()
 

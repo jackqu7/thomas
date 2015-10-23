@@ -81,6 +81,14 @@ class Drawer(object):
 
 
 class HeadcodeDrawer(Drawer):
+    RIGHT = 'right'
+    LEFT = 'left'
+
+    def __init__(self, *args, **kwargs):
+        self.progress_orientation = \
+            kwargs.pop('progress_orientation', None) or self.RIGHT
+        super(HeadcodeDrawer, self).__init__(*args, **kwargs)
+
     def draw(self):
         if self.train:
             if self.train.get('is_fringe'):
@@ -93,11 +101,27 @@ class HeadcodeDrawer(Drawer):
     def fringe(self, train, color=Drawer.ORANGE):
         draw = ImageDraw.Draw(self.im)
 
-        PADDING = 20
+        PROGRESS_HEIGHT = 5
+        TOP_SEP = 20
+        LINE_SEP = 15
+
+        progress_width = train['distance_percent'] * self.WIDTH
+        if self.progress_orientation == self.RIGHT:
+            progress_end_x = progress_width
+            progress_coords = (
+                (0, 0),
+                (progress_end_x, PROGRESS_HEIGHT))
+        else:
+            progress_start_x = self.WIDTH - progress_width
+            progress_coords = (
+                (progress_start_x, 0),
+                (self.WIDTH, PROGRESS_HEIGHT))
+
+        draw.rectangle(progress_coords, fill=color)
 
         _, h = self.draw_text(
             draw,
-            (self.WIDTH / 2 + 4, PADDING),
+            (self.WIDTH / 2 + 4, PROGRESS_HEIGHT + TOP_SEP),
             self.train['headcode'],
             self.large_font,
             color,
@@ -105,7 +129,7 @@ class HeadcodeDrawer(Drawer):
 
         self.draw_text_wrap(
             draw,
-            (self.WIDTH / 2 + 4, h + PADDING * 2),
+            (self.WIDTH / 2 + 4, h + PROGRESS_HEIGHT + TOP_SEP + LINE_SEP),
             self.train['berth']['desc'],
             self.small_font,
             color)
