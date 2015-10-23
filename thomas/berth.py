@@ -1,3 +1,6 @@
+from collections import OrderedDict
+
+
 class Berth(object):
     def __init__(self, berth):
         self.berth_id = berth['id']
@@ -47,7 +50,7 @@ class PriorityBerth(Berth):
 
 class FringeBerth(Berth):
     def __init__(self, berth, *look_back_berths):
-        self.look_back_berths = {}
+        self.look_back_berths = OrderedDict()
         for b in look_back_berths:
             self.look_back_berths[b['id']] = b
         self.fringe_trains = {}
@@ -61,7 +64,10 @@ class FringeBerth(Berth):
 
         if berth_id in self.look_back_berths:
             self.fringe_trains[berth_id] = \
-                self._copy_train(train, is_fringe=True)
+                self._copy_train(
+                    train,
+                    is_fringe=True,
+                    berth=self.look_back_berths[berth_id])
 
         return self.choose_current_train()
 

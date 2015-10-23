@@ -82,7 +82,7 @@ class FatController(object):
 
         '0939': {
             'id': '0939',
-            'desc': 'Langley Junc',
+            'desc': 'Langley Juncion',
             'distance': 1,
         },
 
@@ -126,12 +126,12 @@ class FatController(object):
         },
         '0627': {
             'id': '0627',
-            'desc': 'Welwyn North Tunnel',
+            'desc': 'North Tunnel',
             'distance': 5,
         },
         '0625': {
             'id': '0625',
-            'desc': 'Welwyn South Tunnel',
+            'desc': 'South Tunnel',
             'distance': 6,
         },
         '0623': {
