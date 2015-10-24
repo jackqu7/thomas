@@ -50,16 +50,22 @@ class FatController(object):
 
         self.status = {}
 
+    def run(self):
+        asyncio.async(self.ws_client.run())
+        asyncio.async(self.ir_input.run())
+
+        asyncio.async(self.tick())
+        asyncio.async(self.ws_queue_handler())
+
     def set_drawer(self, drawer):
         self.drawer = drawer
         asyncio.async(self._set_drawer())
 
     @asyncio.coroutine
     def _set_drawer(self):
-        self.call_all_berths_and_draw()
-        yield from self.output.flush_display_queue()
+        yield from self.call_all_berths_and_draw()
 
-    def call_all_berths_and_draw(self, berth_caller=None):
+    def call_all_berths_and_draw(self, berth_caller=None, flush=True):
         for display_number, kwargs, berth in self.DISPLAY_BERTHS:
             if berth_caller:
                 update = berth_caller(berth)
@@ -70,13 +76,13 @@ class FatController(object):
                 drawer = self.drawer(train_to_draw, **kwargs)
                 im = drawer.draw()
                 self.output.queue_display_update(im, display_number)
+        if flush:
+            yield from self.output.flush_display_queue()
 
     @asyncio.coroutine
     def tick(self):
         while True:
-            self.call_all_berths_and_draw(lambda b: b.tick())
-            yield from self.output.flush_display_queue()
-
+            yield from self.call_all_berths_and_draw(lambda b: b.tick())
             yield from asyncio.sleep(self.TICK_RATE)
 
     @asyncio.coroutine
@@ -86,15 +92,9 @@ class FatController(object):
             self.status.update(message)
             yield from self.update()
 
-    def run(self):
-        asyncio.async(self.ws_client.run())
-        asyncio.async(self.ir_input.run())
-
-        asyncio.async(self.tick())
-        asyncio.async(self.ws_queue_handler())
-
     def update(self):
         for berth_id, train in self.status.items():
-            self.call_all_berths_and_draw(lambda b: b.set(berth_id, train))
-
+            yield from self.call_all_berths_and_draw(
+                lambda b: b.set(berth_id, train),
+                flush=False)
         yield from self.output.flush_display_queue()
