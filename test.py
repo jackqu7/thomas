@@ -323,7 +323,11 @@ class FringeBerthTests(unittest.TestCase):
         assert berth.get_current_train() == current_train_exp
 
     def test_is_different(self):
-        berth = FringeBerth(_berth_json())
+        b_main = _berth_json(id='MAIN')
+        b_f1 = _berth_json(id='F1', distance=1)
+        b_f2 = _berth_json(id='F2', distance=2)
+
+        berth = FringeBerth(b_main, b_f1, b_f2)
 
         moorgate1 = {
             'headcode': '2F29'
@@ -341,12 +345,30 @@ class FringeBerthTests(unittest.TestCase):
             'is_fringe': True,
         }
 
+        f1_train = {
+            'headcode': '1P29',
+            'is_fringe': True,
+            'berth': b_f1,
+        }
+        f1_train2 = {
+            'headcode': '1P29',
+            'is_fringe': True,
+            'berth': b_f1,
+        }
+        f2_train = {
+            'headcode': '1P29',
+            'is_fringe': True,
+            'berth': b_f2,
+        }
+
         assert berth._is_different(moorgate1, kings_cross1)
         assert berth._is_different(kings_cross1, moorgate1)
         assert berth._is_different(moorgate1, None)
         assert berth._is_different(None, moorgate1)
         assert not berth._is_different(moorgate1, moorgate2)
         assert berth._is_different(kings_cross2, kings_cross1)
+        assert not berth._is_different(f1_train, f1_train2)
+        assert berth._is_different(f1_train, f2_train)
 
     def test_set_and_tick(self):
         train_a = {

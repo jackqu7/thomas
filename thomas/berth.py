@@ -64,7 +64,8 @@ class FringeBerth(Berth):
     def _is_different(self, train1, train2):
         if train1 and train2:
             return train1['headcode'] != train2['headcode'] or \
-                train1.get('is_fringe') != train2.get('is_fringe')
+                train1.get('is_fringe') != train2.get('is_fringe') or \
+                train1.get('berth') != train2.get('berth')
         else:
             return train1 and not train2 or not train1 and train2
 
