@@ -368,8 +368,6 @@ class FringeBerthTests(unittest.TestCase):
         b_f3 = _berth_json(id='F3', distance=3)
         b_f4 = _berth_json(id='F4', distance=4)
 
-        # MAIN  F1  F2  F3 F4
-        #       NEW A   B  C
         berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F2', train_a)
         berth.set('F3', train_b)
@@ -392,5 +390,17 @@ class FringeBerthTests(unittest.TestCase):
         assert berth.get_current_train()['headcode'] == 'CCCC'
         berth.tick()
         assert berth.get_current_train()['headcode'] == 'DDDD'
+        berth.tick()
+        assert berth.get_current_train()['headcode'] == 'AAAA'
+        berth.set('F1', None)
+        berth.set('F2', None)
+        berth.set('F3', None)
+        berth.set('F4', None)
+        berth.tick()
+        assert berth.get_current_train() is None
+        assert berth.current_fringe_berth_id is None
+        berth.tick()
+        berth.set('F3', train_a)
+        assert berth.get_current_train()['headcode'] == 'AAAA'
         berth.tick()
         assert berth.get_current_train()['headcode'] == 'AAAA'
