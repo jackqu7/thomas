@@ -22,10 +22,11 @@ if has_lirc:
         lirc.deinit()
 
     class InputLIRC(object):
+        def __init__(self, loop):
+            self.loop = loop
 
         def get_next_code(self, q):
-            loop = asyncio.get_event_loop()
-            return (yield from loop.run_in_executor(
+            return (yield from self.loop.run_in_executor(
                 ThreadPoolExecutor(max_workers=1),
                     q.get))
 
@@ -33,9 +34,8 @@ if has_lirc:
             m = multiprocessing.Manager()
             q = m.Queue()
 
-            loop = asyncio.get_event_loop()
-            loop.run_in_executor(ProcessPoolExecutor(max_workers=1),
-                                 lirc_process, q)
+            self.loop.run_in_executor(ProcessPoolExecutor(max_workers=1),
+                                      lirc_process, q)
             asyncio.async(self._run(q, message_queue))
 
         @asyncio.coroutine
@@ -47,18 +47,20 @@ if has_lirc:
 
 else:
     class InputStdin(object):
+        def __init__(self, loop):
+            self.loop = loop
+
         def got_stdin_data(self, message_queue):
             asyncio.async(message_queue.put(sys.stdin.readline().strip()))
 
         def run(self, message_queue):
-            loop = asyncio.get_event_loop()
-            loop.add_reader(sys.stdin, self.got_stdin_data, message_queue)
+            self.loop.add_reader(sys.stdin, self.got_stdin_data, message_queue)
 
 
 class Input(object):
-    def __init__(self):
+    def __init__(self, loop):
         is_arm = os.uname()[4][:3] == 'arm'
-        self.input = InputLIRC() if is_arm else InputStdin()
+        self.input = InputLIRC(loop) if is_arm else InputStdin(loop)
         self.callbacks = {}
 
     @asyncio.coroutine

@@ -38,7 +38,7 @@ class FatController(object):
 
         self.drawer = FringeDrawer
 
-        self.ir_input = Input()
+        self.ir_input = Input(loop)
         self.ir_input.add_callback('b_up', self.output.brightness_up)
         self.ir_input.add_callback('b_down', self.output.brightness_down)
         self.ir_input.add_callback(
