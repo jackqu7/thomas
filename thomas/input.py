@@ -48,7 +48,7 @@ if has_lirc:
 else:
     class InputStdin(object):
         def got_stdin_data(self, message_queue):
-            asyncio.async(message_queue.put(sys.stdin.readline()))
+            asyncio.async(message_queue.put(sys.stdin.readline().strip()))
 
         def run(self, message_queue):
             loop = asyncio.get_event_loop()
@@ -67,7 +67,7 @@ class Input(object):
         self.input.run(message_queue)
         while True:
             result = yield from message_queue.get()
-            print('Got input %s' % result)
+            print('Got input "%s"' % result)
             if result in self.callbacks:
                 self.callbacks[result]()
 

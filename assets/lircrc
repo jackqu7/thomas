@@ -11,3 +11,15 @@ begin
   config = b_down
   repeat = 1
 end
+
+begin
+  button = BTN_1
+  prog = nr_view
+  config = m1
+end
+
+begin
+  button = BTN_2
+  prog = nr_view
+  config = m2
+end

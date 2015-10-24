@@ -14,7 +14,7 @@ class Drawer(object):
     BLUE = (0, 204, 255)
     ORANGE = (255, 153, 51)
 
-    def __init__(self, train, text_color=BLUE):
+    def __init__(self, train, text_color=BLUE, **kwargs):
         self.im = Image.new('RGB', (self.WIDTH, self.HEIGHT))
         self.train = train
         self.text_color = text_color
@@ -81,22 +81,39 @@ class Drawer(object):
 
 
 class HeadcodeDrawer(Drawer):
+
+    def draw(self):
+        if self.train and not self.train.get('is_fringe'):
+            return self.headcode(self.train['headcode'])
+        else:
+            return self.blank()
+
+    def headcode(self, headcode, color=Drawer.BLUE):
+        draw = ImageDraw.Draw(self.im)
+
+        self.draw_text(
+            draw,
+            (self.WIDTH / 2 + 4, self.HEIGHT / 2),
+            headcode,
+            self.large_font,
+            color)
+
+        return self.im
+
+
+class FringeDrawer(HeadcodeDrawer):
     RIGHT = 'right'
     LEFT = 'left'
 
     def __init__(self, *args, **kwargs):
         self.progress_orientation = \
             kwargs.pop('progress_orientation', None) or self.RIGHT
-        super(HeadcodeDrawer, self).__init__(*args, **kwargs)
+        super(FringeDrawer, self).__init__(*args, **kwargs)
 
     def draw(self):
-        if self.train:
-            if self.train.get('is_fringe'):
-                return self.fringe(self.train)
-            else:
-                return self.headcode(self.train['headcode'])
-        else:
-            return self.blank()
+        if self.train and self.train.get('is_fringe'):
+            return self.fringe(self.train)
+        return super(FringeDrawer, self).draw()
 
     def fringe(self, train, color=Drawer.ORANGE):
         draw = ImageDraw.Draw(self.im)
@@ -132,18 +149,6 @@ class HeadcodeDrawer(Drawer):
             (self.WIDTH / 2 + 4, h + PROGRESS_HEIGHT + TOP_SEP + LINE_SEP),
             self.train['berth']['desc'],
             self.small_font,
-            color)
-
-        return self.im
-
-    def headcode(self, headcode, color=Drawer.BLUE):
-        draw = ImageDraw.Draw(self.im)
-
-        self.draw_text(
-            draw,
-            (self.WIDTH / 2 + 4, self.HEIGHT / 2),
-            headcode,
-            self.large_font,
             color)
 
         return self.im

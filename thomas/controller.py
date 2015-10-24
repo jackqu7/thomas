@@ -5,16 +5,16 @@ from .async_output import AsyncOutput
 from .input import Input
 from .berth import Berth, PriorityBerth, FringeBerth
 from .websocket_client import WebsocketClient
-from .drawer import HeadcodeDrawer
+from .drawer import HeadcodeDrawer, FringeDrawer
 
 
 class FatController(object):
 
     DISPLAY_BERTHS = (
-        (11, {'progress_orientation': HeadcodeDrawer.LEFT}, FringeBerth(B['0659'], B['0939'], B['0651'], B['0637'], B['0633'], B['0629'], B['0627'], B['0625'], B['0623'])),
+        (11, {'progress_orientation': FringeDrawer.LEFT}, FringeBerth(B['0659'], B['0939'], B['0651'], B['0637'], B['0633'], B['0629'], B['0627'], B['0625'], B['0623'])),
         (1, {}, PriorityBerth(B['0660'], alt=B['0665'])),
         (0, {}, Berth(B['0669'])),
-        (2, {'progress_orientation': HeadcodeDrawer.LEFT}, FringeBerth(B['0661'], B['0653'], B['0639'], B['0635'], B['0629'], B['0627'], B['0625'], B['0623'])),
+        (2, {'progress_orientation': FringeDrawer.LEFT}, FringeBerth(B['0661'], B['0653'], B['0639'], B['0635'], B['0629'], B['0627'], B['0625'], B['0623'])),
         (3, {}, Berth(B['0667'])),
         (4, {}, Berth(B['0671'])),
         (5, {}, Berth(B['0656'])),
@@ -36,24 +36,45 @@ class FatController(object):
         self.ws_queue = asyncio.Queue()
         self.ws_client = WebsocketClient(self.ws_queue)
 
+        self.drawer = FringeDrawer
+
         self.ir_input = Input()
         self.ir_input.add_callback('b_up', self.output.brightness_up)
         self.ir_input.add_callback('b_down', self.output.brightness_down)
+        self.ir_input.add_callback(
+            'm1',
+            lambda: self.set_drawer(HeadcodeDrawer))
+        self.ir_input.add_callback(
+            'm2',
+            lambda: self.set_drawer(FringeDrawer))
 
         self.status = {}
+
+    def set_drawer(self, drawer):
+        self.drawer = drawer
+        asyncio.async(self._set_drawer())
+
+    @asyncio.coroutine
+    def _set_drawer(self):
+        self.call_all_berths_and_draw()
+        yield from self.output.flush_display_queue()
+
+    def call_all_berths_and_draw(self, berth_caller=None):
+        for display_number, kwargs, berth in self.DISPLAY_BERTHS:
+            if berth_caller:
+                update = berth_caller(berth)
+            else:
+                update = True
+            if update:
+                train_to_draw = berth.get_current_train()
+                drawer = self.drawer(train_to_draw, **kwargs)
+                im = drawer.draw()
+                self.output.queue_display_update(im, display_number)
 
     @asyncio.coroutine
     def tick(self):
         while True:
-            for display_number, kwargs, berth in self.DISPLAY_BERTHS:
-                changed = berth.tick()
-                if changed:
-                    train_to_draw = berth.get_current_train()
-                    drawer = HeadcodeDrawer(train_to_draw, **kwargs)
-                    im = drawer.draw()
-                    print('drawing from tick', train_to_draw)
-                    self.output.queue_display_update(im, display_number)
-
+            self.call_all_berths_and_draw(lambda b: b.tick())
             yield from self.output.flush_display_queue()
 
             yield from asyncio.sleep(self.TICK_RATE)
@@ -73,17 +94,7 @@ class FatController(object):
         asyncio.async(self.ws_queue_handler())
 
     def update(self):
-
         for berth_id, train in self.status.items():
-
-            # Tell all berths about this update, if they care about it they'll
-            # return True and we'll then draw their new current_train
-            for display_number, kwargs, berth in self.DISPLAY_BERTHS:
-                changed = berth.set(berth_id, train)
-                if changed:
-                    train_to_draw = berth.get_current_train()
-                    im = HeadcodeDrawer(train_to_draw, **kwargs).draw()
-                    print('drawing from update', train_to_draw)
-                    self.output.queue_display_update(im, display_number)
+            self.call_all_berths_and_draw(lambda b: b.set(berth_id, train))
 
         yield from self.output.flush_display_queue()
