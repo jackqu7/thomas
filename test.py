@@ -170,24 +170,24 @@ class FringeBerthTests(unittest.TestCase):
         assert berth.get_current_train() == current_train_exp
 
         # MAIN  F1  F2  F3
-        # -     NEW -   A   = NEW
+        # -     NEW -   A   = A
         berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F3', train_a)
-        assert berth.set('F1', train_b) is True
-        current_train_exp = dict(
+        assert berth.set('F1', train_b) is None
+        f1_exp = dict(
             train_b,
             is_fringe=True,
             berth=b_f1,
             distance_percent=0.25)
-        f3_exp = dict(
+        current_train_exp = dict(
             train_a,
             is_fringe=True,
             berth=b_f3,
             distance_percent=0.75)
         assert berth.get_current_train() == current_train_exp
         assert berth.fringe_trains == {
-            'F1': current_train_exp,
-            'F3': f3_exp}
+            'F1': f1_exp,
+            'F3': current_train_exp}
 
         # MAIN  F1  F2  F3
         # B     NEW  -   A   = B
@@ -216,7 +216,7 @@ class FringeBerthTests(unittest.TestCase):
         berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F3', train_b)
         berth.set('F1', train_a)
-        assert berth.set('F1', None) is True
+        assert berth.set('F1', None) is None
         f3_exp = dict(
             train_b,
             is_fringe=True,
@@ -228,17 +228,17 @@ class FringeBerthTests(unittest.TestCase):
             'F3': f3_exp}
 
         # MAIN  F1   F2  F3
-        # NONE  A    -   B   = A
+        # NONE  A    -   B   = B
         berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F3', train_b)
         berth.set('F1', train_a)
         berth.set('MAIN', train_c)
         assert berth.set('MAIN', None) is True
         current_train_exp = dict(
-            train_a,
+            train_b,
             is_fringe=True,
-            berth=b_f1,
-            distance_percent=0.25)
+            berth=b_f3,
+            distance_percent=0.75)
         assert berth.get_current_train() == current_train_exp
 
     def test_tick(self):
@@ -265,21 +265,18 @@ class FringeBerthTests(unittest.TestCase):
         berth.tick()
         current_train_exp = dict(train_a, is_fringe=False)
         assert berth.get_current_train() == current_train_exp
-        assert berth.counter == 1
 
         # No train in the main berth -> tick through fringe berths
         berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F1', train_a)
         berth.set('F3', train_b)
 
-        berth.tick()
         current_train_exp = dict(
             train_a,
             is_fringe=True,
             berth=b_f1,
             distance_percent=0.25)
         assert berth.get_current_train() == current_train_exp
-        assert berth.counter == 1
 
         berth.tick()
         current_train_exp = dict(
@@ -288,7 +285,6 @@ class FringeBerthTests(unittest.TestCase):
             berth=b_f3,
             distance_percent=0.75)
         assert berth.get_current_train() == current_train_exp
-        assert berth.counter == 2
 
         berth.tick()
         current_train_exp = dict(
@@ -297,10 +293,10 @@ class FringeBerthTests(unittest.TestCase):
             berth=b_f1,
             distance_percent=0.25)
         assert berth.get_current_train() == current_train_exp
-        assert berth.counter == 1
 
         # Add a new train to F2 -> show it on next tick and show F3 train later
         berth.set('F2', train_c)
+        assert berth.get_current_train() == current_train_exp
 
         berth.tick()
         current_train_exp = dict(
@@ -309,7 +305,6 @@ class FringeBerthTests(unittest.TestCase):
             berth=b_f2,
             distance_percent=0.5)
         assert berth.get_current_train() == current_train_exp
-        assert berth.counter == 2
 
         berth.tick()
         current_train_exp = dict(
@@ -318,7 +313,6 @@ class FringeBerthTests(unittest.TestCase):
             berth=b_f3,
             distance_percent=0.75)
         assert berth.get_current_train() == current_train_exp
-        assert berth.counter == 3
 
         berth.tick()
         current_train_exp = dict(
@@ -327,7 +321,6 @@ class FringeBerthTests(unittest.TestCase):
             berth=b_f1,
             distance_percent=0.25)
         assert berth.get_current_train() == current_train_exp
-        assert berth.counter == 1
 
     def test_is_different(self):
         berth = FringeBerth(_berth_json())
@@ -354,3 +347,50 @@ class FringeBerthTests(unittest.TestCase):
         assert berth._is_different(None, moorgate1)
         assert not berth._is_different(moorgate1, moorgate2)
         assert berth._is_different(kings_cross2, kings_cross1)
+
+    def test_set_and_tick(self):
+        train_a = {
+            'headcode': 'AAAA'
+        }
+        train_b = {
+            'headcode': 'BBBB'
+        }
+        train_c = {
+            'headcode': 'CCCC'
+        }
+        train_d = {
+            'headcode': 'DDDD'
+        }
+
+        b_main = _berth_json(id='MAIN')
+        b_f1 = _berth_json(id='F1', distance=1)
+        b_f2 = _berth_json(id='F2', distance=2)
+        b_f3 = _berth_json(id='F3', distance=3)
+        b_f4 = _berth_json(id='F4', distance=4)
+
+        # MAIN  F1  F2  F3 F4
+        #       NEW A   B  C
+        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth.set('F2', train_a)
+        berth.set('F3', train_b)
+        berth.set('F4', train_c)
+        assert berth.get_current_train()['headcode'] == 'AAAA'
+        berth.tick()
+        assert berth.get_current_train()['headcode'] == 'BBBB'
+        berth.set('F1', train_d)
+        berth.tick()
+        assert berth.get_current_train()['headcode'] == 'CCCC'
+        berth.set('F3', None)
+        assert berth.get_current_train()['headcode'] == 'CCCC'
+        berth.tick()
+        assert berth.get_current_train()['headcode'] == 'DDDD'
+        berth.set('F1', None)
+        assert berth.get_current_train()['headcode'] == 'AAAA'
+        berth.tick()
+        assert berth.get_current_train()['headcode'] == 'CCCC'
+        berth.set('F1', train_d)
+        assert berth.get_current_train()['headcode'] == 'CCCC'
+        berth.tick()
+        assert berth.get_current_train()['headcode'] == 'DDDD'
+        berth.tick()
+        assert berth.get_current_train()['headcode'] == 'AAAA'

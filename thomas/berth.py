@@ -58,7 +58,7 @@ class FringeBerth(Berth):
                 self.max_berth_distance = b['distance']
         self.fringe_trains = {}
         self.train = None
-        self.counter = 0
+        self.current_fringe_berth_id = None
         super(FringeBerth, self).__init__(berth)
 
     def set(self, berth_id, train):
@@ -75,6 +75,12 @@ class FringeBerth(Berth):
                     berth=berth,
                     distance_percent=distance_percent)
 
+            # XXX: this is whack
+            if train and not self.current_fringe_berth_id:
+                self.current_fringe_berth_id = berth_id
+            elif not train and self.current_fringe_berth_id == berth_id:
+                self.set_next_fringe_id()
+
         return self.choose_current_train()
 
     def _is_different(self, train1, train2):
@@ -90,28 +96,57 @@ class FringeBerth(Berth):
             current_train = self.train
         else:
             # Otherwise show the active fringe train
-            active_trains = list(self._active_fringe_trains())
-
-            if len(active_trains) == 0:
-                current_train = None
-            else:
-                if self.counter > len(active_trains) - 1:
-                    self.counter = 0
-                current_train = active_trains[self.counter]
+            fringe = self.fringe_trains.get(self.current_fringe_berth_id)
+            current_train = fringe
 
         if self._is_different(current_train, self.current_train):
             self.current_train = current_train
             return True
 
-    def _active_fringe_trains(self):
-        for fringe_id in self.look_back_berths:
-            fringe_train = self.fringe_trains.get(fringe_id)
-            if fringe_train:
-                yield fringe_train
+    def _active_fringe_berths(self):
+        return [fringe_id
+                for fringe_id in self.look_back_berths
+                if self.fringe_trains.get(fringe_id)]
+
+    def set_next_fringe_id(self):
+        # Get all berths, in order, that have a train in them
+        active_berths = self._active_fringe_berths()
+
+        if len(active_berths) == 0:
+            # There are no active berths, so show nothing
+            self.current_fringe_berth_id = None
+            return
+
+        if self.current_fringe_berth_id in active_berths:
+            # The berth we're currently showing still has a train in it.
+
+            if len(active_berths) == 1:
+                # This is the only train available, so keep showing it
+                return
+
+            # More trains are available, so find the next one
+
+            # Find out where we are currently
+            current_index = active_berths.index(self.current_fringe_berth_id)
+
+            if current_index < len(active_berths) - 1:
+                # If we're not at the end of the list, get the next index
+                next_berth = active_berths[current_index + 1]
+            else:
+                # Otherwise, wrap back round to the start
+                next_berth = active_berths[0]
+            self.current_fringe_berth_id = next_berth
+        else:
+            # The berth we're currently showing is now empty.
+
+            if len(active_berths) > 0:
+                self.current_fringe_berth_id = active_berths[0]
+            else:
+                self.current_fringe_berth_id = None
 
     def tick(self):
-        res = self.choose_current_train()
+        self.set_next_fringe_id()
 
-        self.counter += 1
+        res = self.choose_current_train()
 
         return res
