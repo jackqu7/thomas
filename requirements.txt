@@ -2,5 +2,5 @@ pillow==2.9.0
 websockets==2.6
 python-lirc==1.2.1
 -e git+https://github.com/adafruit/Adafruit_Python_GPIO.git#egg=Adafruit_GPIO
-#-e git+https://github.com/jackqu7/Adafruit_Python_ILI9341
+-e git+https://github.com/jackqu7/Adafruit_Python_ILI9341#egg=Adafruit_ILI9341
 pytest==2.8.2
