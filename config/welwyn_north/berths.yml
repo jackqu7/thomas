@@ -1,0 +1,145 @@
+- id: D-WelwynNorth
+  desc: Welwyn North
+  distance: 0
+  number: '0623'
+
+- id: DF-DigswellJunc
+  desc: Digswell Junction
+  distance: 1
+  number: '0619'
+
+- id: DS-DigswellJunc
+  desc: Digswell Junction
+  distance: 1
+  number: '0617'
+
+- id: DF-WGC
+  desc: Welwyn Garden City
+  distance: 2
+  number: '0607'
+
+- id: DS-WGC
+  desc: Welwyn Garden City
+  distance: 2
+  number: '0605'
+
+- id: DS-WGCReverse
+  desc: Welwyn Garden City
+  distance: 2
+  number: '0602'
+
+- id: DS-NorthHatfield
+  desc: North Hatfield
+  distance: 3
+  number: '0595'
+
+- id: DF-NorthHatfield
+  desc: North Hatfield
+  distance: 3
+  number: '0597'
+
+- id: DS-HatfieldDep
+  desc: Hatfield Dep
+  distance: 4
+  number: '0587'
+
+- id: DF-HatfieldDep
+  desc: Hatfield Dep
+  distance: 4
+  number: '0589'
+
+- id: DS-Hatfield
+  desc: Hatfield
+  distance: 5
+  number: '0583'
+
+- id: DF-Hatfield
+  desc: Hatfield
+  distance: 5
+  number: '0585'
+
+- id: DS-HatfieldArr
+  desc: Hatfield Arr
+  distance: 6
+  number: '0561'
+
+- id: DF-HatfieldArr
+  desc: Hatfield Arr
+  distance: 6
+  number: '0563'
+
+- id: DS-WelhamGreen
+  desc: Welham Green
+  distance: 7
+  number: '0557'
+
+- id: DF-WelhamGreen
+  desc: Welham Green
+  distance: 7
+  number: '0559'
+
+- id: U-WelwynNorth
+  desc: Welwyn North
+  distance: 0
+  number: '0624'
+
+- id: U-SouthTunnel
+  desc: South Tunnel
+  distance: 1
+  number: '0626'
+
+- id: U-NorthTunnel
+  desc: North Tunnel
+  distance: 2
+  number: '0628'
+
+- id: UF-KnebworthDep
+  desc: Knebworth Dep
+  distance: 3
+  number: '0630'
+
+- id: US-KnebworthDep
+  desc: Knebworth Dep
+  distance: 3
+  number: '0632'
+
+- id: UF-Knebworth
+  desc: Knebworth
+  distance: 4
+  number: '0634'
+
+- id: US-Knebworth
+  desc: Knebworth
+  distance: 4
+  number: '0636'
+
+- id: UF-KnebworthArr
+  desc: Knebworth Arr
+  distance: 5
+  number: '0638'
+
+- id: US-KnebworthArr
+  desc: Knebworth Arr
+  distance: 5
+  number: '0640'
+
+- id: UF-SouthStevenage
+  desc: South Stevenage
+  distance: 6
+  number: '0650'
+
+- id: US-SouthStevenage
+  desc: South Stevenage
+  distance: 6
+  number: '0652'
+
+- id: UF-StevenageDep
+  desc: Stevenage Dep
+  distance: 7
+  number: '0656'
+
+- id: US-StevenageDep
+  desc: Stevenage Dep
+  distance: 7
+  number: '0658'
+

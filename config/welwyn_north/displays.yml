@@ -1,0 +1,42 @@
+- id: D-Plat
+  port: 0
+  device: 0
+  type: FRINGE
+  kwargs:
+    progress_orientation: LEFT
+  berths:
+    - D-WelwynNorth
+    - DF-DigswellJunc
+    - DS-DigswellJunc
+    - DF-WGC
+    - DS-WGC
+    - DS-WGCReverse
+    - DF-NorthHatfield
+    - DS-NorthHatfield
+    - DF-HatfieldDep
+    - DS-HatfieldDep
+    - DF-Hatfield
+    - DS-Hatfield
+    - DF-HatfieldArr
+    - DS-HatfieldArr
+    - DF-WelhamGreen
+    - DS-WelhamGreen
+
+- id: U-Plat
+  port: 0
+  device: 1
+  type: FRINGE
+  berths:
+    - U-WelwynNorth
+    - U-SouthTunnel
+    - U-NorthTunnel
+    - UF-KnebworthDep
+    - US-KnebworthDep
+    - UF-Knebworth
+    - US-Knebworth
+    - UF-KnebworthArr
+    - US-KnebworthArr
+    - UF-SouthStevenage
+    - US-SouthStevenage
+    - UF-StevenageDep
+    - US-StevenageDep

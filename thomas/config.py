@@ -1,8 +1,10 @@
 import yaml
+import os
 from collections import OrderedDict
 from .berth import (
     BerthController, PriorityBerthController, FringeBerthController)
 from .output import Display
+from .util import get_config_filename
 
 
 def load_yaml(file_or_string):
@@ -13,7 +15,7 @@ def load_yaml(file_or_string):
     return output
 
 
-def get_displays(berth_file_or_string, display_file_or_string):
+def _get_displays(berth_file_or_string, display_file_or_string):
     berths = load_yaml(berth_file_or_string)
     displays = load_yaml(display_file_or_string) # no need for this to be a dict
     output = []
@@ -35,10 +37,17 @@ def get_displays(berth_file_or_string, display_file_or_string):
             port=display_data['port'],
             device=display_data['device'],
             controller=controller,
-            ss=display_data['ss'],
+            ss=display_data.get('ss'),
             drawer_kwargs=display_data.get('kwargs')
         )
 
         output.append(display)
 
     return output
+
+
+def get_displays():
+    config_dir = os.environ.get('THOMAS_CONFIG', 'stevenage')
+    berth_filename = get_config_filename(config_dir, 'berths.yml')
+    display_filename = get_config_filename(config_dir, 'displays.yml')
+    return _get_displays(open(berth_filename), open(display_filename))

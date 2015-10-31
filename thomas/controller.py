@@ -14,8 +14,7 @@ class FatController(object):
     def __init__(self, loop):
         self.loop = loop
 
-        self.displays = get_displays(
-            open('config/berths.yml'), open('config/displays.yml'))
+        self.displays = get_displays()
         self.output = AsyncOutput(loop, self.displays)
 
         self.ws_queue = asyncio.Queue()
