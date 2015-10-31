@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 class Berth(object):
     def __init__(self, berth):
-        self.berth_id = berth['id']
+        self.berth_id = berth['number']
         self.current_train = None
 
     def _is_different(self, train1, train2):
@@ -30,8 +30,8 @@ class Berth(object):
 
 
 class PriorityBerth(Berth):
-    def __init__(self, berth, alt=None):
-        self.alt_berth_id = alt['id']
+    def __init__(self, berth, alt):
+        self.alt_berth_id = alt['number']
         self.train = None
         self.alt_train = None
         super(PriorityBerth, self).__init__(berth)
@@ -53,7 +53,7 @@ class FringeBerth(Berth):
         self.look_back_berths = OrderedDict()
         self.max_berth_distance = 1
         for b in look_back_berths:
-            self.look_back_berths[b['id']] = b
+            self.look_back_berths[b['number']] = b
             if b['distance'] > self.max_berth_distance:
                 self.max_berth_distance = b['distance']
         self.fringe_trains = {}

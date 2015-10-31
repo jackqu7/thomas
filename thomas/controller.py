@@ -1,29 +1,15 @@
 import asyncio
 
-from .config import BERTHS as B
+from .config import get_displays
 from .async_output import AsyncOutput
 from .input import Input
-from .berth import Berth, PriorityBerth, FringeBerth
 from .websocket_client import WebsocketClient
 from .drawer import HeadcodeDrawer, FringeDrawer
 
 
 class FatController(object):
 
-    DISPLAY_BERTHS = (
-        (11, {'progress_orientation': FringeDrawer.LEFT}, FringeBerth(B['0659'], B['0939'], B['0651'], B['0637'], B['0633'], B['0629'], B['0627'], B['0625'], B['0623'])),
-        (1, {}, PriorityBerth(B['0660'], alt=B['0665'])),
-        (0, {}, Berth(B['0669'])),
-        (2, {'progress_orientation': FringeDrawer.LEFT}, FringeBerth(B['0661'], B['0653'], B['0639'], B['0635'], B['0629'], B['0627'], B['0625'], B['0623'])),
-        (3, {}, Berth(B['0667'])),
-        (4, {}, Berth(B['0671'])),
-        (5, {}, Berth(B['0656'])),
-        (6, {}, Berth(B['0662'])),
-        (7, {}, FringeBerth(B['0666'], B['0672'], B['0676'], B['0684'], B['0688'], B['0696'], B['0708'], B['0712'])),
-        (10, {}, Berth(B['0658'])),
-        (9, {}, Berth(B['0664'])),
-        (8, {}, FringeBerth(B['0668'], B['0668'], B['0674'], B['0678'], B['0686'], B['0690'], B['0698'], B['0701'], B['0710'], B['0714'], B['0944'], B['0946'])),
-    )
+    DISPLAY_BERTHS = get_displays(open('config/berths.yml'), open('config/displays.yml'))
 
     TICK_RATE = 5
 

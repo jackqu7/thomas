@@ -2,8 +2,9 @@ import unittest
 from thomas.berth import Berth, PriorityBerth, FringeBerth
 
 
-def _berth_json(**params):
-    params.setdefault('id', 'abc')
+def _berth(**params):
+    params.setdefault('id', 'UF-Stevenage')
+    params.setdefault('number', 'abc')
     params.setdefault('desc', 'desc')
     params.setdefault('distance', 0)
     return params
@@ -12,7 +13,7 @@ def _berth_json(**params):
 class BerthTests(unittest.TestCase):
 
     def test_is_different(self):
-        berth = Berth(_berth_json())
+        berth = Berth(_berth())
 
         moorgate1 = {
             'headcode': '2F29'
@@ -36,7 +37,7 @@ class BerthTests(unittest.TestCase):
         assert not berth._is_different(kings_cross2, kings_cross1)
 
     def test_set(self):
-        berth = Berth(_berth_json(id='abc'))
+        berth = Berth(_berth(number='abc'))
 
         moorgate1 = {
             'headcode': '2F29'
@@ -68,7 +69,7 @@ class BerthTests(unittest.TestCase):
 
 class PriorityBerthTests(unittest.TestCase):
     def test_set(self):
-        berth = PriorityBerth(_berth_json(id='abc'), alt=_berth_json(id='efg'))
+        berth = PriorityBerth(_berth(number='abc'), _berth(number='efg'))
 
         moorgate1 = {
             'headcode': '2F29'
@@ -122,11 +123,11 @@ class FringeBerthTests(unittest.TestCase):
             'headcode': 'CCCC'
         }
 
-        b_main = _berth_json(id='MAIN')
-        b_f1 = _berth_json(id='F1', distance=1)
-        b_f2 = _berth_json(id='F2', distance=2)
-        b_f3 = _berth_json(id='F3', distance=3)
-        b_f4 = _berth_json(id='F4', distance=4)
+        b_main = _berth(number='MAIN')
+        b_f1 = _berth(number='F1', distance=1)
+        b_f2 = _berth(number='F2', distance=2)
+        b_f3 = _berth(number='F3', distance=3)
+        b_f4 = _berth(number='F4', distance=4)
 
         # MAIN  F1  F2  F3
         # NEW   -   -   -   = NEW
@@ -252,11 +253,11 @@ class FringeBerthTests(unittest.TestCase):
             'headcode': 'CCCC'
         }
 
-        b_main = _berth_json(id='MAIN')
-        b_f1 = _berth_json(id='F1', distance=1)
-        b_f2 = _berth_json(id='F2', distance=2)
-        b_f3 = _berth_json(id='F3', distance=3)
-        b_f4 = _berth_json(id='F4', distance=4)
+        b_main = _berth(number='MAIN')
+        b_f1 = _berth(number='F1', distance=1)
+        b_f2 = _berth(number='F2', distance=2)
+        b_f3 = _berth(number='F3', distance=3)
+        b_f4 = _berth(number='F4', distance=4)
 
         # Train in the main berth -> do nothing on tick
         berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
@@ -323,9 +324,9 @@ class FringeBerthTests(unittest.TestCase):
         assert berth.get_current_train() == current_train_exp
 
     def test_is_different(self):
-        b_main = _berth_json(id='MAIN')
-        b_f1 = _berth_json(id='F1', distance=1)
-        b_f2 = _berth_json(id='F2', distance=2)
+        b_main = _berth(number='MAIN')
+        b_f1 = _berth(number='F1', distance=1)
+        b_f2 = _berth(number='F2', distance=2)
 
         berth = FringeBerth(b_main, b_f1, b_f2)
 
@@ -384,11 +385,11 @@ class FringeBerthTests(unittest.TestCase):
             'headcode': 'DDDD'
         }
 
-        b_main = _berth_json(id='MAIN')
-        b_f1 = _berth_json(id='F1', distance=1)
-        b_f2 = _berth_json(id='F2', distance=2)
-        b_f3 = _berth_json(id='F3', distance=3)
-        b_f4 = _berth_json(id='F4', distance=4)
+        b_main = _berth(number='MAIN')
+        b_f1 = _berth(number='F1', distance=1)
+        b_f2 = _berth(number='F2', distance=2)
+        b_f3 = _berth(number='F3', distance=3)
+        b_f4 = _berth(number='F4', distance=4)
 
         berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F2', train_a)

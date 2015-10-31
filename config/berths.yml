@@ -1,0 +1,204 @@
+- id: D-WelwynNorth
+  desc: Welwyn North
+  distance: 7
+  number: '0623'
+
+- id: D-SouthTunnel
+  desc: South Tunnel
+  distance: 6
+  number: '0625'
+
+- id: D-NorthTunnel
+  desc: North Tunnel
+  distance: 5
+  number: '0627'
+
+- id: D-WoolmerGreenJunc
+  desc: Woolmer Green Junc
+  distance: 4
+  number: '0629'
+
+- id: DS-KnebworthArr
+  desc: Knebworth Arr
+  distance: 3
+  number: '0633'
+
+- id: DF-KnebworthArr
+  desc: Knebworth Arr
+  distance: 3
+  number: '0635'
+
+- id: DS-Knebworth
+  desc: Knebworth
+  distance: 2
+  number: '0637'
+
+- id: DF-Knebworth
+  desc: Knebworth
+  distance: 2
+  number: '0639'
+
+- id: DS-KnebworthDep
+  desc: Knebworth Dep
+  distance: 1
+  number: '0651'
+
+- id: DF-KnebworthDep
+  desc: Knebworth Dep
+  distance: 1
+  number: '0653'
+
+- id: DH-LangleyJunc
+  desc: Langley Juncion
+  distance: 1
+  number: '0939'
+
+- id: UF-StevenageDep
+  desc: Stevenage Dep
+  distance: 1
+  number: '0656'
+
+- id: US-StevenageDep
+  desc: Stevenage Dep
+  distance: 1
+  number: '0658'
+
+- id: DS-StevenageArr
+  desc: Stevenage Arr
+  distance: 1
+  number: '0659'
+
+- id: DS-StevenageReverse
+  desc: Stevenage
+  distance: 0
+  number: '0660'
+
+- id: DS-Stevenage
+  desc: Stevenage
+  distance: 0
+  number: '0665'
+
+- id: DF-StevenageArr
+  desc: Stevenage Arr
+  distance: 0
+  number: '0661'
+
+- id: UF-Stevenage
+  desc: Stevenage
+  distance: 0
+  number: '0662'
+
+- id: US-Stevenage
+  desc: Stevenage
+  distance: 0
+  number: '0664'
+
+- id: UF-StevenageArr
+  desc: Stevenage Arr
+  distance: 0
+  number: '0666'
+
+- id: DF-Stevenage
+  desc: Stevenage
+  distance: 0
+  number: '0667'
+
+- id: US-StevenageArr
+  desc: Stevenage Arr
+  distance: 0
+  number: '0668'
+
+- id: DS-StevenageDep
+  desc: Stevenage Dep
+  distance: 0
+  number: '0669'
+
+- id: DF-StevenageDep
+  desc: Stevenage Dep
+  distance: 0
+  number: '0671'
+
+- id: UF-NorthStevenage
+  desc: North Stevenage
+  distance: 1
+  number: '0672'
+
+- id: US-NorthStevenage
+  desc: North Stevenage
+  distance: 1
+  number: '0674'
+
+- id: UF-LittleWymondley
+  desc: Little Wymondley
+  distance: 2
+  number: '0676'
+
+- id: US-LittleWymondley
+  desc: Little Wymondley
+  distance: 2
+  number: '0678'
+
+- id: UF-GreatWymondley
+  desc: Great Wymondley
+  distance: 3
+  number: '0684'
+
+- id: US-GreatWymondley
+  desc: Great Wymondley
+  distance: 3
+  number: '0686'
+
+- id: UF-HitchinDep
+  desc: Hitchin Dep
+  distance: 4
+  number: '0688'
+
+- id: US-HitchinDep
+  desc: Hitchin Dep
+  distance: 4
+  number: '0690'
+
+- id: UF-Hitchin
+  desc: Hitchin
+  distance: 5
+  number: '0696'
+
+- id: US-Hitchin
+  desc: Hitchin
+  distance: 5
+  number: '0698'
+
+- id: US-HitchinReverse
+  desc: Hitchin
+  distance: 5
+  number: '0701'
+
+- id: UF-HitchinArr
+  desc: Hitchin Arr
+  distance: 6
+  number: '0708'
+
+- id: US-HitchinArr
+  desc: Hitchin Arr
+  distance: 6
+  number: '0710'
+
+- id: UF-NorthHitchin
+  desc: North Hitchin
+  distance: 7
+  number: '0712'
+
+- id: US-NorthHitchin
+  desc: North Hitchin
+  distance: 7
+  number: '0714'
+
+- id: UC-CambridgeJunc
+  desc: Cambridge Junction
+  distance: 6
+  number: '0944'
+
+- id: UC-LetchworthDep
+  desc: Letchworth Dep
+  distance: 7
+  number: '0946'

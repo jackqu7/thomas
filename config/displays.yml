@@ -1,0 +1,132 @@
+- id: DS-South
+  port: 0
+  device: 0
+  ss: 11
+  type: FRINGE
+  kwargs:
+    progress_orientation: LEFT
+  berths:
+    - DS-StevenageArr
+    - DH-LangleyJunc
+    - DS-KnebworthDep
+    - DS-Knebworth
+    - DS-KnebworthArr
+    - D-WoolmerGreenJunc
+    - D-NorthTunnel
+    - D-SouthTunnel
+    - D-WelwynNorth
+
+- id: DS-Plat
+  port: 0
+  device: 0
+  ss: 1
+  type: PRIORITY
+  berths:
+    - DS-StevenageReverse
+    - DS-Stevenage
+
+- id: DS-North
+  port: 0
+  device: 0
+  ss: 0
+  type: NORMAL
+  berths:
+    - DS-StevenageDep
+
+- id: DF-South
+  port: 0
+  device: 0
+  ss: 2
+  type: FRINGE
+  kwargs:
+    progress_orientation: LEFT
+  berths:
+    - DF-StevenageArr
+    - DF-KnebworthDep
+    - DF-Knebworth
+    - DF-KnebworthArr
+    - D-WoolmerGreenJunc
+    - D-NorthTunnel
+    - D-SouthTunnel
+    - D-WelwynNorth
+
+- id: DF-Plat
+  port: 0
+  device: 0
+  ss: 3
+  type: NORMAL
+  berths:
+    - DF-Stevenage
+
+- id: DF-North
+  port: 0
+  device: 0
+  ss: 4
+  type: NORMAL
+  berths:
+    - DF-StevenageDep
+
+- id: UF-South
+  port: 0
+  device: 0
+  ss: 5
+  type: NORMAL
+  berths:
+    - UF-StevenageDep
+
+- id: UF-Plat
+  port: 0
+  device: 0
+  ss: 6
+  type: NORMAL
+  berths:
+    - UF-Stevenage
+
+- id: UF-North
+  port: 0
+  device: 0
+  ss: 7
+  type: FRINGE
+  berths:
+    - UF-StevenageArr
+    - UF-NorthStevenage
+    - UF-LittleWymondley
+    - UF-GreatWymondley
+    - UF-HitchinDep
+    - UF-Hitchin
+    - UF-HitchinArr
+    - UF-NorthHitchin
+
+- id: US-South
+  port: 0
+  device: 0
+  ss: 10
+  type: NORMAL
+  berths:
+    - US-StevenageDep
+
+- id: US-Plat
+  port: 0
+  device: 0
+  ss: 9
+  type: NORMAL
+  berths:
+    - US-Stevenage
+
+- id: US-North
+  port: 0
+  device: 0
+  ss: 8
+  type: FRINGE
+  berths:
+    - US-StevenageArr
+    - US-NorthStevenage
+    - US-LittleWymondley
+    - US-GreatWymondley
+    - US-HitchinDep
+    - US-Hitchin
+    - US-HitchinReverse
+    - US-HitchinArr
+    - US-NorthHitchin
+    - UC-CambridgeJunc
+    - UC-LetchworthDep
