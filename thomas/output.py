@@ -93,11 +93,17 @@ if has_tft:
         A2 = 24
         A3 = 25
 
+        def _get_spi(self, port, device):
+            key = '%s-%s' % (port, device)
+            if key not in self._spis:
+                self._spis[key] = SPI.SpiDev(port, device)
+            return self._spis[key]
+
         def __init__(self, displays):
 
             self.init_pwm()
 
-            spi = SPI.SpiDev(self.SPI_PORT, self.SPI_DEVICE)
+            self._spis = {}
 
             self.gpio = GPIO.get_platform_gpio()
             self.gpio.setup(self.A0, GPIO.OUT)
@@ -121,6 +127,7 @@ if has_tft:
 
                 self.address(display)
 
+                spi = self._get_spi(display.port, display.device)
                 disp = TFT.ST7735(self.DC, rst=rst, spi=spi, clock=16000000)
                 disp.begin()
 
