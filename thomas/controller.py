@@ -9,15 +9,14 @@ from .drawer import HeadcodeDrawer, FringeDrawer
 
 class FatController(object):
 
-    DISPLAY_BERTHS = get_displays(open('config/berths.yml'), open('config/displays.yml'))
-
     TICK_RATE = 5
 
     def __init__(self, loop):
         self.loop = loop
 
-        display_numbers = [num for num, _, _ in self.DISPLAY_BERTHS]
-        self.output = AsyncOutput(loop, display_numbers)
+        self.displays = get_displays(
+            open('config/berths.yml'), open('config/displays.yml'))
+        self.output = AsyncOutput(loop, self.displays)
 
         self.ws_queue = asyncio.Queue()
         self.ws_client = WebsocketClient(self.ws_queue)
@@ -51,17 +50,17 @@ class FatController(object):
     def _set_drawer(self):
         yield from self.call_all_berths_and_draw()
 
-    def call_all_berths_and_draw(self, berth_caller=None, flush=True):
-        for display_number, kwargs, berth in self.DISPLAY_BERTHS:
-            if berth_caller:
-                update = berth_caller(berth)
+    def call_all_berths_and_draw(self, controller_caller=None, flush=True):
+        for display in self.displays:
+            if controller_caller:
+                update = controller_caller(display.controller)
             else:
                 update = True
             if update:
-                train_to_draw = berth.get_current_train()
-                drawer = self.drawer(train_to_draw, **kwargs)
+                train_to_draw = display.controller.get_current_train()
+                drawer = self.drawer(train_to_draw, **display.drawer_kwargs)
                 im = drawer.draw()
-                self.output.queue_display_update(im, display_number)
+                self.output.queue_display_update(im, display)
         if flush:
             yield from self.output.flush_display_queue()
 

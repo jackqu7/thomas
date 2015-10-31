@@ -18,6 +18,20 @@ except ImportError:
     has_tft = False
 
 
+class Display(object):
+    def __init__(self, id, port, device, controller, ss=None,
+                 drawer_kwargs=None):
+        self.id = id
+
+        self.port = port
+        self.device = device
+        self.ss = ss
+
+        self.drawer_kwargs = drawer_kwargs or {}
+
+        self.controller = controller
+
+
 width = 160
 height = 128
 
@@ -34,27 +48,27 @@ if has_tk:
             self.image.paste(im)
 
     class OutputTk(object):
-        def __init__(self, numbers):
+        def __init__(self, displays):
             self.root = Tk()
             self.root.wm_attributes('-topmost', 1)
 
             self.uis = {}
 
-            count = len(numbers)
+            count = len(displays)
             if count < 4:
                 grid = count
             else:
                 grid = 3
 
-            for i, number in enumerate(numbers):
+            for i, display in enumerate(displays):
                 ui = UI(self.root)
                 col = int(i % grid)
                 row = int(math.floor(i / grid))
                 ui.grid(row=row, column=col)
-                self.uis[number] = ui
+                self.uis[display.id] = ui
 
-        def display(self, img, number):
-            self.uis[number].display(img)
+        def display(self, img, display):
+            self.uis[display.id].display(img)
             self.root.update()
 
         def brightness_up(self):
@@ -79,7 +93,7 @@ if has_tft:
         A2 = 24
         A3 = 25
 
-        def __init__(self, numbers):
+        def __init__(self, displays):
 
             self.init_pwm()
 
@@ -91,12 +105,12 @@ if has_tft:
             self.gpio.setup(self.A2, GPIO.OUT)
             self.gpio.setup(self.A3, GPIO.OUT)
 
-            self.displays = {}
+            self.tfts = {}
 
             has_reset = False
 
-            for i in numbers:
-                print('init', i)
+            for display in displays:
+                print('init', display.id)
 
                 # only reset once
                 if not has_reset:
@@ -105,7 +119,7 @@ if has_tft:
                 else:
                     rst = None
 
-                self.address(i)
+                self.address(display)
 
                 disp = TFT.ST7735(self.DC, rst=rst, spi=spi, clock=16000000)
                 disp.begin()
@@ -114,23 +128,23 @@ if has_tft:
                 disp.clear()
                 disp.display()
 
-                self.displays[i] = disp
+                self.tfts[display.id] = disp
 
-        def address(self, number):
-            a0 = number & 0b0001 != 0
-            a1 = number & 0b0010 != 0
-            a2 = number & 0b0100 != 0
-            a3 = number & 0b1000 != 0
+        def address(self, display):
+            if display.ss:
+                a0 = display.ss & 0b0001 != 0
+                a1 = display.ss & 0b0010 != 0
+                a2 = display.ss & 0b0100 != 0
+                a3 = display.ss & 0b1000 != 0
 
-            self.gpio.output(self.A0, a0)
-            self.gpio.output(self.A1, a1)
-            self.gpio.output(self.A2, a2)
-            self.gpio.output(self.A3, a3)
+                self.gpio.output(self.A0, a0)
+                self.gpio.output(self.A1, a1)
+                self.gpio.output(self.A2, a2)
+                self.gpio.output(self.A3, a3)
 
-        def display(self, img, number):
-            if number in self.displays:
-                self.address(number)
-                self.displays[number].display(img.rotate(90))
+        def display(self, img, display):
+            self.address(display.id)
+            self.tfts[display.id].display(img.rotate(90))
 
         def init_pwm(self):
             self.pwm = PWM.get_platform_pwm()
@@ -155,16 +169,16 @@ if has_tft:
 
 
 class Output(object):
-    def __init__(self, numbers):
+    def __init__(self, displays):
         is_arm = os.uname()[4][:3] == 'arm'
 
         self.type = 'tft' if is_arm else 'tk'
         output = OutputTFT if is_arm else OutputTk
-        self.output = output(numbers)
+        self.output = output(displays)
         self.display_queue = []
 
-    def queue_display_update(self, img, number):
-        self.display_queue.append((img, number))
+    def queue_display_update(self, img, display):
+        self.display_queue.append((img, display))
 
     def flush_display_queue(self):
         for args in self.display_queue:
