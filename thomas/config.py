@@ -1,6 +1,7 @@
 import yaml
 from collections import OrderedDict
-from .berth import Berth, PriorityBerth, FringeBerth
+from .berth import (
+    BerthController, PriorityBerthController, FringeBerthController)
 
 
 def load_yaml(file_or_string):
@@ -18,11 +19,11 @@ def get_displays(berth_file_or_string, display_file_or_string):
     for id, display in displays.items():
         type = display.get('type')
         if type == 'PRIORITY':
-            display_cls = PriorityBerth
+            display_cls = PriorityBerthController
         elif type == 'FRINGE':
-            display_cls = FringeBerth
+            display_cls = FringeBerthController
         else:
-            display_cls = Berth
+            display_cls = BerthController
 
         display_berths = [berths[berth_id] for berth_id in display['berths']]
 

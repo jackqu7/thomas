@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 
-class Berth(object):
+class BerthController(object):
     def __init__(self, berth):
         self.berth_id = berth['number']
         self.current_train = None
@@ -29,12 +29,12 @@ class Berth(object):
         pass
 
 
-class PriorityBerth(Berth):
+class PriorityBerthController(BerthController):
     def __init__(self, berth, alt):
         self.alt_berth_id = alt['number']
         self.train = None
         self.alt_train = None
-        super(PriorityBerth, self).__init__(berth)
+        super(PriorityBerthController, self).__init__(berth)
 
     def set(self, berth_id, train):
         if berth_id == self.berth_id:
@@ -48,7 +48,7 @@ class PriorityBerth(Berth):
             return True
 
 
-class FringeBerth(Berth):
+class FringeBerthController(BerthController):
     def __init__(self, berth, *look_back_berths):
         self.look_back_berths = OrderedDict()
         self.max_berth_distance = 1
@@ -59,7 +59,7 @@ class FringeBerth(Berth):
         self.fringe_trains = {}
         self.train = None
         self.current_fringe_berth_id = None
-        super(FringeBerth, self).__init__(berth)
+        super(FringeBerthController, self).__init__(berth)
 
     def _is_different(self, train1, train2):
         if train1 and train2:

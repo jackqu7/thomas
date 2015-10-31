@@ -1,5 +1,6 @@
 import unittest
-from thomas.berth import Berth, PriorityBerth, FringeBerth
+from thomas.berth import (
+    BerthController, PriorityBerthController, FringeBerthController)
 
 
 def _berth(**params):
@@ -10,10 +11,10 @@ def _berth(**params):
     return params
 
 
-class BerthTests(unittest.TestCase):
+class BerthControllerTests(unittest.TestCase):
 
     def test_is_different(self):
-        berth = Berth(_berth())
+        berth = BerthController(_berth())
 
         moorgate1 = {
             'headcode': '2F29'
@@ -37,7 +38,7 @@ class BerthTests(unittest.TestCase):
         assert not berth._is_different(kings_cross2, kings_cross1)
 
     def test_set(self):
-        berth = Berth(_berth(number='abc'))
+        berth = BerthController(_berth(number='abc'))
 
         moorgate1 = {
             'headcode': '2F29'
@@ -67,9 +68,9 @@ class BerthTests(unittest.TestCase):
         assert berth.get_current_train() is None
 
 
-class PriorityBerthTests(unittest.TestCase):
+class PriorityBerthControllerTests(unittest.TestCase):
     def test_set(self):
-        berth = PriorityBerth(_berth(number='abc'), _berth(number='efg'))
+        berth = PriorityBerthController(_berth(number='abc'), _berth(number='efg'))
 
         moorgate1 = {
             'headcode': '2F29'
@@ -111,7 +112,7 @@ class PriorityBerthTests(unittest.TestCase):
         assert berth.get_current_train() == moorgate1
 
 
-class FringeBerthTests(unittest.TestCase):
+class FringeBerthControllerTests(unittest.TestCase):
     def test_set(self):
         train_a = {
             'headcode': 'AAAA'
@@ -131,14 +132,14 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1  F2  F3
         # NEW   -   -   -   = NEW
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         assert berth.set('MAIN', train_a) is True
         current_train_exp = dict(train_a, is_fringe=False)
         assert berth.get_current_train() == current_train_exp
 
         # MAIN  F1  F2  F3
         # -     -   -   NEW = NEW
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         assert berth.set('F3', train_a) is True
         current_train_exp = dict(
             train_a,
@@ -150,7 +151,7 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1  F2  F3
         # A     -   NEW -   = A
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('MAIN', train_a)
         assert berth.set('F2', train_b) is None
         current_train_exp = dict(train_a, is_fringe=False)
@@ -164,7 +165,7 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1  F2  F3
         # NEW   -   A   -   = NEW
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F2', train_a)
         assert berth.set('MAIN', train_b) is True
         current_train_exp = dict(train_b, is_fringe=False)
@@ -172,7 +173,7 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1  F2  F3
         # -     NEW -   A   = A
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F3', train_a)
         assert berth.set('F1', train_b) is None
         f1_exp = dict(
@@ -192,7 +193,7 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1  F2  F3
         # B     NEW  -   A   = B
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F3', train_a)
         berth.set('MAIN', train_b)
         assert berth.set('F1', train_c) is None
@@ -214,7 +215,7 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1   F2  F3
         # -     NONE -   B   = B
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F3', train_b)
         berth.set('F1', train_a)
         assert berth.set('F1', None) is None
@@ -230,7 +231,7 @@ class FringeBerthTests(unittest.TestCase):
 
         # MAIN  F1   F2  F3
         # NONE  A    -   B   = B
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F3', train_b)
         berth.set('F1', train_a)
         berth.set('MAIN', train_c)
@@ -260,7 +261,7 @@ class FringeBerthTests(unittest.TestCase):
         b_f4 = _berth(number='F4', distance=4)
 
         # Train in the main berth -> do nothing on tick
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('MAIN', train_a)
         berth.set('F1', train_b)
         berth.tick()
@@ -268,7 +269,7 @@ class FringeBerthTests(unittest.TestCase):
         assert berth.get_current_train() == current_train_exp
 
         # No train in the main berth -> tick through fringe berths
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F1', train_a)
         berth.set('F3', train_b)
 
@@ -328,7 +329,7 @@ class FringeBerthTests(unittest.TestCase):
         b_f1 = _berth(number='F1', distance=1)
         b_f2 = _berth(number='F2', distance=2)
 
-        berth = FringeBerth(b_main, b_f1, b_f2)
+        berth = FringeBerthController(b_main, b_f1, b_f2)
 
         moorgate1 = {
             'headcode': '2F29'
@@ -391,7 +392,7 @@ class FringeBerthTests(unittest.TestCase):
         b_f3 = _berth(number='F3', distance=3)
         b_f4 = _berth(number='F4', distance=4)
 
-        berth = FringeBerth(b_main, b_f1, b_f2, b_f3, b_f4)
+        berth = FringeBerthController(b_main, b_f1, b_f2, b_f3, b_f4)
         berth.set('F2', train_a)
         berth.set('F3', train_b)
         berth.set('F4', train_c)
