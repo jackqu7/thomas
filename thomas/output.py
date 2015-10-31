@@ -143,7 +143,7 @@ if has_tft:
                 self.gpio.output(self.A3, a3)
 
         def display(self, img, display):
-            self.address(display.id)
+            self.address(display)
             self.tfts[display.id].display(img.rotate(90))
 
         def init_pwm(self):
