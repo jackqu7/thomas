@@ -29,7 +29,9 @@ class FatController(object):
         self.output = AsyncOutput(loop, self.displays)
 
         self.ws_queue = asyncio.Queue()
-        self.ws_client = WebsocketClient(self.ws_queue)
+        self.ws_client = WebsocketClient(
+            self.ws_queue,
+            on_connect=self.on_connect, on_disconnect=self.on_disconnect)
 
         self.drawer = FringeDrawer
 
@@ -50,6 +52,12 @@ class FatController(object):
 
         asyncio.async(self.tick())
         asyncio.async(self.ws_queue_handler())
+
+    def on_connect(self):
+        self.flash_message('Connected')
+
+    def on_disconnect(self):
+        self.set_message('Connection Lost')
 
     @asyncio.coroutine
     def _set_message(self, msg):
