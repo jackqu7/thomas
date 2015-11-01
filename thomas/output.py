@@ -84,7 +84,7 @@ if has_tk:
 if has_tft:
     class OutputTFT(object):
         PWM_FREQ = 120
-        PWM_PIN = 21
+        PWM_PIN = 17
 
         DC = 27
         RST = 18
