@@ -10,7 +10,7 @@ class WebsocketClient(object):
 
     RECONNECT_WAIT = 3
 
-    URL = 'ws://192.168.0.7:5000/'
+    URL = 'ws://trainspotter.reeves.io/'
 
     def __init__(self, queue, on_connect=None, on_disconnect=None):
         self.queue = queue
