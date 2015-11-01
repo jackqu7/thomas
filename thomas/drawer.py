@@ -8,24 +8,36 @@ class Drawer(object):
     WIDTH = 160
     HEIGHT = 128
 
+    MESSAGE_PAD_TOP = 2
+    MESSAGE_PAD_BOTTOM = 1
+    MESSAGE_HEIGHT = 16
+
     large_font = ImageFont.truetype(get_asset_filename('font.ttf'), 54)
     small_font = ImageFont.truetype(get_asset_filename('font.ttf'), 20)
+    tiny_font = ImageFont.truetype(
+        get_asset_filename('FreeSans.ttf'), MESSAGE_HEIGHT)
 
+    name = ''
+
+    BLACK = (0, 0, 0)
     BLUE = (0, 204, 255)
     ORANGE = (255, 153, 51)
 
-    def __init__(self, train, text_color=BLUE, **kwargs):
+    def __init__(self, train, text_color=BLUE, message=None, **kwargs):
         self.im = Image.new('RGB', (self.WIDTH, self.HEIGHT))
         self.train = train
         self.text_color = text_color
+        self.message = message
 
     def draw(self):
         return self.blank()
 
     def blank(self):
+        self.draw_message(self.BLUE)
         return self.im
 
-    def draw_text(self, draw, coords, text, font, color, center_x=True, center_y=True):
+    def draw_text(self, draw, coords, text, font, color, center_x=True,
+                  center_y=True):
         x, y = coords
 
         w, h = font.getsize(text)
@@ -79,8 +91,31 @@ class Drawer(object):
             draw.text((new_x, y), text, font=font, fill=color)
             y += LEADING
 
+    def draw_message(self, color):
+        if self.message:
+            draw = ImageDraw.Draw(self.im)
+
+            coords = (
+                (0, 0),
+                (self.WIDTH,
+                 self.MESSAGE_HEIGHT + self.MESSAGE_PAD_TOP +
+                 self.MESSAGE_PAD_BOTTOM))
+            draw.rectangle(coords, fill=color)
+
+            self.draw_text(
+                draw,
+                (self.WIDTH / 2 + 4, self.MESSAGE_PAD_TOP),
+                self.message,
+                self.tiny_font,
+                self.BLACK,
+                center_y=False)
+
+        return self.im
+
 
 class HeadcodeDrawer(Drawer):
+
+    name = 'Headcode'
 
     def draw(self):
         if self.train and not self.train.get('is_fringe'):
@@ -98,12 +133,16 @@ class HeadcodeDrawer(Drawer):
             self.large_font,
             color)
 
+        self.draw_message(color)
+
         return self.im
 
 
 class FringeDrawer(HeadcodeDrawer):
     RIGHT = 'right'
     LEFT = 'left'
+
+    name = 'Fringe'
 
     def __init__(self, *args, **kwargs):
         self.progress_orientation = \
@@ -150,5 +189,7 @@ class FringeDrawer(HeadcodeDrawer):
             self.train['berth']['desc'],
             self.small_font,
             color)
+
+        self.draw_message(color)
 
         return self.im

@@ -31,6 +31,6 @@ class AsyncOutput(Output):
             sup()
 
         end_time = time.time()
-        logger.info("Flush time: %s", str(end_time - start_time))
+        logger.debug("Flush time: %s", str(end_time - start_time))
 
         self.lock.release()

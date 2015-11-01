@@ -7,6 +7,8 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 
 from .util import get_asset_filename
 
+logger = logging.getLogger(__name__)
+
 has_lirc = True
 try:
     import lirc
