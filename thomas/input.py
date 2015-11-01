@@ -2,6 +2,7 @@ import os
 import asyncio
 import multiprocessing
 import sys
+import logging
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 
 from .util import get_asset_filename
@@ -69,7 +70,7 @@ class Input(object):
         self.input.run(message_queue)
         while True:
             result = yield from message_queue.get()
-            print('Got input "%s"' % result)
+            logger.info('Got input "%s"', result)
             if result in self.callbacks:
                 self.callbacks[result]()
 

@@ -2,6 +2,7 @@ from PIL import Image
 
 import math
 import os
+import logging
 
 has_tk = True
 try:
@@ -16,6 +17,8 @@ try:
     from Adafruit_GPIO import SPI, GPIO, PWM
 except ImportError:
     has_tft = False
+
+logger = logging.getLogger(__name__)
 
 
 class Display(object):
@@ -116,7 +119,7 @@ if has_tft:
             has_reset = False
 
             for display in displays:
-                print('init', display.id)
+                logger.info('Initialising display %s', display.id)
 
                 # only reset once
                 if not has_reset:

@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from .config import get_displays
 from .async_output import AsyncOutput
@@ -6,12 +7,15 @@ from .input import Input
 from .websocket_client import WebsocketClient
 from .drawer import HeadcodeDrawer, FringeDrawer
 
+logger = logging.getLogger(__name__)
+
 
 class FatController(object):
 
     TICK_RATE = 5
 
     def __init__(self, loop):
+        logger.debug('Controller init')
         self.loop = loop
 
         self.displays = get_displays()
@@ -35,6 +39,7 @@ class FatController(object):
         self.status = {}
 
     def run(self):
+        logger.info('Thomas Starting')
         asyncio.async(self.ws_client.run())
         asyncio.async(self.ir_input.run())
 

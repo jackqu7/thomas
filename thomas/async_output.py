@@ -1,9 +1,12 @@
 import asyncio
 import time
+import logging
 
 from concurrent.futures import ThreadPoolExecutor
 
 from .output import Output
+
+logger = logging.getLogger(__name__)
 
 
 class AsyncOutput(Output):
@@ -28,6 +31,6 @@ class AsyncOutput(Output):
             sup()
 
         end_time = time.time()
-        print("time: %s" % str(end_time - start_time))
+        logger.info("Flush time: %s", str(end_time - start_time))
 
         self.lock.release()

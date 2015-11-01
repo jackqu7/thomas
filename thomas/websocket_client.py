@@ -1,6 +1,9 @@
 import asyncio
 import websockets
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class WebsocketClient(object):
@@ -16,9 +19,9 @@ class WebsocketClient(object):
     def run(self):
         while True:
             try:
-                print('Attempting to connect')
+                logger.info('Attempting to connect')
                 self.websocket = yield from websockets.connect(self.URL)
-                print('Connected')
+                logger.info('Connected')
                 while True:
                     message = yield from self.websocket.recv()
                     if message is None:
@@ -28,6 +31,6 @@ class WebsocketClient(object):
 
                 yield from self.websocket.close()
             except Exception as e:
-                print('Caught %s' % e)
-            print('Lost connection')
+                logger.error(e)
+            logger.warning('Lost connection')
             yield from asyncio.sleep(self.RECONNECT_WAIT)
