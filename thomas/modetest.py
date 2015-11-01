@@ -1,15 +1,16 @@
-from thomas.config import BERTHS as B
+from thomas.config import get_displays, get_berths
 from thomas.output import Output
 from thomas.drawer import HeadcodeDrawer, FringeDrawer
 
-
-output = Output([1])
+displays = get_displays()
+berths = get_berths()
+output = Output(displays)
 
 fringe_train = {
     'headcode': '1C23',
     'is_fringe': True,
     'distance_percent': 0.5,
-    'berth': B['0666']
+    'berth': berths['D-WelwynNorth']
 }
 
 normal_train = {
@@ -21,7 +22,7 @@ normal_train = {
 def draw(drawer, train):
     d = drawer(train)
     im = d.draw()
-    output.display(im, 1)
+    output.display(im, displays[0])
 
 
 print('Fringe train on FringeDrawer')

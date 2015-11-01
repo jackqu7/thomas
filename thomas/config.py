@@ -7,7 +7,7 @@ from .output import Display
 from .util import get_config_filename
 
 
-def load_yaml(file_or_string):
+def _get_berths(file_or_string):
     data = yaml.load(file_or_string)
     output = OrderedDict()
     for datum in data:
@@ -15,11 +15,16 @@ def load_yaml(file_or_string):
     return output
 
 
-def _get_displays(berth_file_or_string, display_file_or_string):
-    berths = load_yaml(berth_file_or_string)
-    displays = load_yaml(display_file_or_string) # no need for this to be a dict
+def get_berths():
+    config_dir = os.environ.get('THOMAS_CONFIG', 'stevenage')
+    berth_filename = get_config_filename(config_dir, 'berths.yml')
+    return _get_berths(open(berth_filename))
+
+
+def _get_displays(berths, display_file_or_string):
+    displays = yaml.load(display_file_or_string)
     output = []
-    for id, display_data in displays.items():
+    for display_data in displays:
         type = display_data.get('type')
         if type == 'PRIORITY':
             display_cls = PriorityBerthController
@@ -48,6 +53,5 @@ def _get_displays(berth_file_or_string, display_file_or_string):
 
 def get_displays():
     config_dir = os.environ.get('THOMAS_CONFIG', 'stevenage')
-    berth_filename = get_config_filename(config_dir, 'berths.yml')
     display_filename = get_config_filename(config_dir, 'displays.yml')
-    return _get_displays(open(berth_filename), open(display_filename))
+    return _get_displays(get_berths(), open(display_filename))
